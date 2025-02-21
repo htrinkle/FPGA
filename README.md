@@ -4,4 +4,4 @@
 
 <img src="images/FPGA_Analog_Board_3d.jpg" alt="isolated" width="200"/>
 
-[[FPGA Analogue Board]]
+[[FPGA%20Analogue%20Board]]
