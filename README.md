@@ -2,7 +2,7 @@
 
 ## Analogue Acquisition Board
 
-<img src="Analog_Board_3d.jpg" alt="isolated" width="200"/>
+<img src="FPGA_Analog_Board_3d.jpg" alt="isolated" width="200"/>
 
 ### Specifications
 
