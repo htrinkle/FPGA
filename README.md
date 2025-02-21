@@ -2,6 +2,8 @@
 
 ## Analogue Acquisition Board
 
+<img src="Analog_Board_3d.jpg" alt="isolated" width="200"/>
+
 ### Specifications
 
 - Cyclone 2 EP2C5T144 FPGA
