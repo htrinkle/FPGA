@@ -1,2 +1,12 @@
-# FPGA
-FPGA Experiments
+# FPGA Playground
+
+## Analogue Acquisition Board
+
+### Specifications
+
+- Cyclone 2 EP2C5T144 FPGA
+- 24MHz Osc
+- Dual 8 Bit 100 MSPS ADC
+- Dual 8 Bit 125 MSPS DAC
+
+## Learning Verilog
