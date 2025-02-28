@@ -13,3 +13,12 @@ The board was built and tested in stages.
 | FPGA | Populate 24MHz Osc | Verify Osc with CRO | TODO |
 | FPGA | Polulate 56r resistor OSC-FPGA | Upload TEST_OSC_1.  Expect LEDs to display binary count with 0.5 sec LSB clock on LED1 | TODO |
 
+## File Structure
+
+./FPGA contains all FPGA related test code.
+
+./FPGA/verilog contains verilog code.  The idea is to keep verilog hdl separate from tool-chain files.  This will allow different tool-chains to be used.  Also allows for simulation using various open source packages such as ikarus verilog.
+
+./FPGA/quartus contains the Quartus project as well as any constraint files such as pin configuration files.
+
+./ESP32 contains all MSU code.
