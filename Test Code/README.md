@@ -1,5 +1,7 @@
 # Testing the FPGA Analog Board
 
+## Approach
+
 The board was built and tested in stages.  
 
 | Stage | PCB Assembly | Tests | Status |
@@ -10,3 +12,4 @@ The board was built and tested in stages.
 | FPGA | Populate PROM | Verify PROM programming via JTAG.  Config should auto-run on power up. | TODO |
 | FPGA | Populate 24MHz Osc | Verify Osc with CRO | TODO |
 | FPGA | Polulate 56r resistor OSC-FPGA | Upload TEST_OSC_1.  Expect LEDs to display binary count with 0.5 sec LSB clock on LED1 | TODO |
+
