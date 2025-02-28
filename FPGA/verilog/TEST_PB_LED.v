@@ -1,6 +1,6 @@
-module TEST_PB_LED.v ( 
-    input wire button;
-    output wire[2..0] led;
+module TEST_PB_LED ( 
+    input wire button,
+    output wire[2:0] led
 );
 
 assign led[0] = ~button;

@@ -1,0 +1,36 @@
+$date
+	Fri Feb 28 20:03:22 2025
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1s
+$end
+$scope module tbBoardTest $end
+$var wire 3 ! led_display [2:0] $end
+$var reg 1 " button_press $end
+$scope module inst_FPGA_Analog_Board_Test $end
+$var wire 1 " button $end
+$var wire 3 # led [2:0] $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+$comment Show the parameter values. $end
+$dumpall
+$end
+#0
+$dumpvars
+b101 #
+0"
+b101 !
+$end
+#100
+b10 !
+b10 #
+1"
+#200
+b101 !
+b101 #
+0"
+#300
