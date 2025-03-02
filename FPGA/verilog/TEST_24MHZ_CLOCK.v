@@ -1,10 +1,11 @@
-module TEST_24MHZ_CLOCK ( 
-    input wire clk,
-    input wire button,
-    output wire[2:0] led
+module TEST_24MHZ_CLOCK #(
+	parameter OSC_F = 24_000_000
+)(
+	input wire clk,
+	input wire button,
+	output wire[2:0] led
 );
 
-localparam OSC_F = 24_000_000;
 localparam HALF_OSC_F = OSC_F / 2;
 localparam CTR_WIDTH = $clog2(HALF_OSC_F);
 
