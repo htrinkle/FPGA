@@ -27,6 +27,10 @@ The board was built and tested in stages.
 
 ./ESP32 contains all MSU code.
 
+## DAC Component Selection
+
+<img src=https://github.com/htrinkle/FPGA/blob/main/images/DAC_Components.jpg>
+
 ## DAC Testing
 
 ### DAC Ramp, measured at load resistors.  Noise in output is probably due to poor earthing of scope probes.  Also note that this waveform was captured before installation of any output fultering capacitors.
