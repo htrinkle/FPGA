@@ -13,7 +13,7 @@ The board was built and tested in stages.
 | FPGA | Populate 24MHz Osc | Verify Osc with CRO | OK |
 | FPGA | Polulate 56r resistor OSC-FPGA | Upload TEST_OSC_1.  Expect LEDs to display binary count with 0.5 sec LSB clock on LED1 | OK |
 | Power | Populate analog LM1117-3.3 plus surrounding capacitors | measure AVDD == 3.3V | OK |
-| DAC A | Populate AD9708 for channel A, including surrounding capacitors and resistors. | Create verilog code to output ramp. Measure signall at output resistors. | TODO |
+| DAC A | Populate AD9708 for channel A, including surrounding capacitors and resistors. | Create verilog code to output ramp. Measure signall at output resistors.  Check ramp lienartiy problems - e.g. stuck bits. | TODO |
 | DAC A | Populate OP-AMP buffer | Verify output signall, centered at AVDD/2 | TODO |
 | PLL | Test high frequency output to 100MSPS | Enable PLL for 100MHz internal clock and verify analog output. | TODO |
 
