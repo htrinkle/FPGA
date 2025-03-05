@@ -1,0 +1,114 @@
+#! /c/Source/iverilog-install/bin/vvp
+:ivl_version "12.0 (devel)" "(s20150603-1539-g2693dd32b)";
+:ivl_delay_selection "TYPICAL";
+:vpi_time_precision + 0;
+:vpi_module "C:\iverilog\lib\ivl\system.vpi";
+:vpi_module "C:\iverilog\lib\ivl\vhdl_sys.vpi";
+:vpi_module "C:\iverilog\lib\ivl\vhdl_textio.vpi";
+:vpi_module "C:\iverilog\lib\ivl\v2005_math.vpi";
+:vpi_module "C:\iverilog\lib\ivl\va_math.vpi";
+S_00000195cca58e20 .scope module, "tbDualDacRamp" "tbDualDacRamp" 2 3;
+ .timescale 0 0;
+v00000195cca564c0_0 .var "button_press", 0 0;
+v00000195cca56560_0 .var "clk", 0 0;
+v00000195cca56600_0 .net "dac_a_d", 7 0, v00000195cca56d90_0;  1 drivers
+v00000195cca566a0_0 .net "dac_b_d", 7 0, v00000195cca56380_0;  1 drivers
+S_00000195cca95890 .scope module, "dut1" "COUNTER_SR" 2 13, 3 1 0, S_00000195cca58e20;
+ .timescale 0 0;
+    .port_info 0 /INPUT 1 "clk";
+    .port_info 1 /INPUT 1 "sReset";
+    .port_info 2 /OUTPUT 8 "q";
+P_00000195cca95310 .param/l "BITS" 0 3 2, +C4<00000000000000000000000000001000>;
+v00000195cca56b70_0 .net "clk", 0 0, v00000195cca56560_0;  1 drivers
+v00000195cca56d90_0 .var "q", 7 0;
+v00000195cca5a100_0 .net "sReset", 0 0, v00000195cca564c0_0;  1 drivers
+E_00000195cca94750 .event posedge, v00000195cca56b70_0;
+S_00000195cca96c70 .scope module, "dut2" "COUNTER_SR" 2 14, 3 1 0, S_00000195cca58e20;
+ .timescale 0 0;
+    .port_info 0 /INPUT 1 "clk";
+    .port_info 1 /INPUT 1 "sReset";
+    .port_info 2 /OUTPUT 8 "q";
+P_00000195cca94790 .param/l "BITS" 0 3 2, +C4<00000000000000000000000000001000>;
+v00000195cca96e00_0 .net "clk", 0 0, v00000195cca56560_0;  alias, 1 drivers
+v00000195cca56380_0 .var "q", 7 0;
+v00000195cca56420_0 .net "sReset", 0 0, v00000195cca564c0_0;  alias, 1 drivers
+    .scope S_00000195cca95890;
+T_0 ;
+    %wait E_00000195cca94750;
+    %load/vec4 v00000195cca5a100_0;
+    %flag_set/vec4 8;
+    %jmp/0 T_0.0, 8;
+    %pushi/vec4 0, 0, 8;
+    %jmp/1 T_0.1, 8;
+T_0.0 ; End of true expr.
+    %load/vec4 v00000195cca56d90_0;
+    %addi 1, 0, 8;
+    %jmp/0 T_0.1, 8;
+ ; End of false expr.
+    %blend;
+T_0.1;
+    %assign/vec4 v00000195cca56d90_0, 0;
+    %jmp T_0;
+    .thread T_0;
+    .scope S_00000195cca96c70;
+T_1 ;
+    %wait E_00000195cca94750;
+    %load/vec4 v00000195cca56420_0;
+    %flag_set/vec4 8;
+    %jmp/0 T_1.0, 8;
+    %pushi/vec4 0, 0, 8;
+    %jmp/1 T_1.1, 8;
+T_1.0 ; End of true expr.
+    %load/vec4 v00000195cca56380_0;
+    %addi 1, 0, 8;
+    %jmp/0 T_1.1, 8;
+ ; End of false expr.
+    %blend;
+T_1.1;
+    %assign/vec4 v00000195cca56380_0, 0;
+    %jmp T_1;
+    .thread T_1;
+    .scope S_00000195cca58e20;
+T_2 ;
+    %pushi/vec4 0, 0, 1;
+    %store/vec4 v00000195cca56560_0, 0, 1;
+    %end;
+    .thread T_2;
+    .scope S_00000195cca58e20;
+T_3 ;
+    %vpi_call 2 17 "$display", "Starting" {0 0 0};
+    %pushi/vec4 0, 0, 1;
+    %store/vec4 v00000195cca564c0_0, 0, 1;
+    %delay 100, 0;
+    %pushi/vec4 1, 0, 1;
+    %store/vec4 v00000195cca564c0_0, 0, 1;
+    %delay 100, 0;
+    %pushi/vec4 0, 0, 1;
+    %store/vec4 v00000195cca564c0_0, 0, 1;
+    %delay 10000, 0;
+    %vpi_call 2 24 "$finish" {0 0 0};
+    %vpi_call 2 25 "$display", "Finished" {0 0 0};
+    %end;
+    .thread T_3;
+    .scope S_00000195cca58e20;
+T_4 ;
+    %vpi_call 2 30 "$dumpfile", "tbDualDacRamp.vcd" {0 0 0};
+    %vpi_call 2 31 "$dumpvars", 32'sb00000000000000000000000000000010, S_00000195cca58e20 {0 0 0};
+    %end;
+    .thread T_4;
+    .scope S_00000195cca58e20;
+T_5 ;
+T_5.0 ;
+    %delay 5, 0;
+    %load/vec4 v00000195cca56560_0;
+    %inv;
+    %assign/vec4 v00000195cca56560_0, 0;
+    %jmp T_5.0;
+    %end;
+    .thread T_5;
+# The file index is used to find the file name in the following table.
+:file_names 4;
+    "N/A";
+    "<interactive>";
+    "tbDualDacRamp.v";
+    "./../verilog/COUNTER_SR.v";

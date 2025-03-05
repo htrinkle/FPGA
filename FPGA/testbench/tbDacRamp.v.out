@@ -1,0 +1,105 @@
+#! /c/Source/iverilog-install/bin/vvp
+:ivl_version "12.0 (devel)" "(s20150603-1539-g2693dd32b)";
+:ivl_delay_selection "TYPICAL";
+:vpi_time_precision + 0;
+:vpi_module "C:\iverilog\lib\ivl\system.vpi";
+:vpi_module "C:\iverilog\lib\ivl\vhdl_sys.vpi";
+:vpi_module "C:\iverilog\lib\ivl\vhdl_textio.vpi";
+:vpi_module "C:\iverilog\lib\ivl\v2005_math.vpi";
+:vpi_module "C:\iverilog\lib\ivl\va_math.vpi";
+S_0000013664ecbaf0 .scope module, "tbDacRamp" "tbDacRamp" 2 4;
+ .timescale 0 0;
+v0000013664eccff0_0 .var "button_press", 0 0;
+v0000013664e1c840_0 .var "clk", 0 0;
+v0000013664e1c8e0_0 .net "dac_a_c", 0 0, L_0000013664ecd090;  1 drivers
+v0000013664e1c980_0 .net "dac_a_d", 7 0, L_0000013664dd3eb0;  1 drivers
+v0000013664e1ca20_0 .net "led_display", 2 0, L_0000013664e1cd90;  1 drivers
+S_0000013664eccc80 .scope module, "dut" "TEST_ADC_RAMP" 2 13, 3 1 0, S_0000013664ecbaf0;
+ .timescale 0 0;
+    .port_info 0 /INPUT 1 "clk";
+    .port_info 1 /INPUT 1 "button";
+    .port_info 2 /OUTPUT 3 "led";
+    .port_info 3 /OUTPUT 8 "dac_a_d";
+    .port_info 4 /OUTPUT 1 "dac_a_c";
+L_0000013664ecd090 .functor BUFZ 1, v0000013664e1c840_0, C4<0>, C4<0>, C4<0>;
+L_0000013664dd3eb0 .functor BUFZ 8, v0000013664ec6780_0, C4<00000000>, C4<00000000>, C4<00000000>;
+v0000013664ec6c20_0 .net *"_ivl_5", 1 0, L_0000013664e1d790;  1 drivers
+v0000013664ec6a00_0 .var "buf1", 7 0;
+v0000013664ec6780_0 .var "buf2", 7 0;
+v0000013664ecb010_0 .net "button", 0 0, v0000013664eccff0_0;  1 drivers
+v0000013664eca520_0 .net "clk", 0 0, v0000013664e1c840_0;  1 drivers
+v0000013664eca360_0 .net "dac_a_c", 0 0, L_0000013664ecd090;  alias, 1 drivers
+v0000013664ecce10_0 .net "dac_a_d", 7 0, L_0000013664dd3eb0;  alias, 1 drivers
+v0000013664ecceb0_0 .net "led", 2 0, L_0000013664e1cd90;  alias, 1 drivers
+v0000013664eccf50_0 .var "ramp", 7 0;
+E_0000013664dd9630 .event negedge, v0000013664eca520_0;
+E_0000013664dd90f0 .event posedge, v0000013664eca520_0;
+L_0000013664e1d790 .part v0000013664eccf50_0, 6, 2;
+L_0000013664e1cd90 .concat [ 1 2 0 0], v0000013664eccff0_0, L_0000013664e1d790;
+    .scope S_0000013664eccc80;
+T_0 ;
+    %pushi/vec4 0, 0, 8;
+    %store/vec4 v0000013664eccf50_0, 0, 8;
+    %end;
+    .thread T_0;
+    .scope S_0000013664eccc80;
+T_1 ;
+    %wait E_0000013664dd90f0;
+    %load/vec4 v0000013664eccf50_0;
+    %addi 1, 0, 8;
+    %assign/vec4 v0000013664eccf50_0, 0;
+    %jmp T_1;
+    .thread T_1;
+    .scope S_0000013664eccc80;
+T_2 ;
+    %wait E_0000013664dd9630;
+    %load/vec4 v0000013664eccf50_0;
+    %assign/vec4 v0000013664ec6a00_0, 0;
+    %load/vec4 v0000013664ec6a00_0;
+    %assign/vec4 v0000013664ec6780_0, 0;
+    %jmp T_2;
+    .thread T_2;
+    .scope S_0000013664ecbaf0;
+T_3 ;
+    %pushi/vec4 0, 0, 1;
+    %store/vec4 v0000013664e1c840_0, 0, 1;
+    %end;
+    .thread T_3;
+    .scope S_0000013664ecbaf0;
+T_4 ;
+    %vpi_call 2 16 "$display", "Starting" {0 0 0};
+    %pushi/vec4 0, 0, 1;
+    %store/vec4 v0000013664eccff0_0, 0, 1;
+    %delay 100, 0;
+    %pushi/vec4 1, 0, 1;
+    %store/vec4 v0000013664eccff0_0, 0, 1;
+    %delay 100, 0;
+    %pushi/vec4 0, 0, 1;
+    %store/vec4 v0000013664eccff0_0, 0, 1;
+    %delay 10000, 0;
+    %vpi_call 2 23 "$finish" {0 0 0};
+    %vpi_call 2 24 "$display", "Finished" {0 0 0};
+    %end;
+    .thread T_4;
+    .scope S_0000013664ecbaf0;
+T_5 ;
+    %vpi_call 2 29 "$dumpfile", "tbDacRamp.vcd" {0 0 0};
+    %vpi_call 2 30 "$dumpvars", 32'sb00000000000000000000000000000010, S_0000013664ecbaf0 {0 0 0};
+    %end;
+    .thread T_5;
+    .scope S_0000013664ecbaf0;
+T_6 ;
+T_6.0 ;
+    %delay 5, 0;
+    %load/vec4 v0000013664e1c840_0;
+    %inv;
+    %assign/vec4 v0000013664e1c840_0, 0;
+    %jmp T_6.0;
+    %end;
+    .thread T_6;
+# The file index is used to find the file name in the following table.
+:file_names 4;
+    "N/A";
+    "<interactive>";
+    "tbDacRamp.v";
+    "./../verilog/TEST_ADC_RAMP.v";
