@@ -16,7 +16,7 @@ The board was built and tested in stages.
 | DAC A | Populate AD9708 for channel A, including surrounding capacitors and resistors. | Create verilog code to output ramp. Measure signall at output resistors.  Check ramp lienartiy problems - e.g. stuck bits. | OK |
 | DAC A | Populate OP-AMP buffer | Verify output signal, centered at AVDD/2 | OK (inverted) |
 | PLL | Test high frequency output to 100MSPS | Enable PLL for 100MHz internal clock and verify analog output. | TODO |
-| DAC B | Populate DAC B and op-amp | Repeat as per DAC A. | TODO |
+| DAC B | Populate DAC B and op-amp | Repeat as per DAC A. | OK |
 | MCU | Populate power LED and resistor (if desired) as this will be impossible after MCU headers installed. Populate any unpopulated resistors near MCU headers.  Populate MCU. Note that MCU USB port is facing into the PCB.  This was done to keep the WiFi antenna at the edge.  (Copper ground planes are also omitted under antenna.) | Test MCU with blink sketch.  Test ability to power board from MCU. | TODO | 
 
 ## File Structure
@@ -37,7 +37,18 @@ The board was built and tested in stages.
 
 ### DAC Ramp, measured at load resistors.  Noise in output is probably due to poor earthing of scope probes.  Also note that this waveform was captured before installation of any output fultering capacitors.
 
-<img src=https://github.com/htrinkle/FPGA/blob/main/images/DAC_Ramp_No_OpAmp.bmp>
+<img src=https://github.com/htrinkle/FPGA/blob/main/images/DAC_Ramp_No_OpAmp.bmp alt="DAC A unbuffered" width="300">
+
+### Dual DAC RAMP at 24MHz clk
+
+DAC output was measured with Siglent DSO (vs FNIRSI tablet) for higher accuracy.  Also, propper "spring" earthing was used rather than longer aligator clip earth leads.  These pictures show he actual analog performance of the DAC stages.
+
+<img src=https://github.com/htrinkle/FPGA/blob/main/images/DAC_A_RAMP.jpg alt="DAC A" width="300">
+<img src=https://github.com/htrinkle/FPGA/blob/main/images/DAC_B_RAMP.jpg alt="DAC B" width="300">
+
+Measured Frequency: 94.7499KHz
+
+Expected Frequency: 24MHz / 256 = 94.75KHz. (OK)
 
 # For next time
 
