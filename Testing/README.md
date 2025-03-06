@@ -1,4 +1,4 @@
-# Testing the FPGA Analog Board
+# Building and Testing the FPGA Analog Board
 
 ## Approach
 
@@ -31,7 +31,7 @@ The board was built and tested in stages.
 
 ## DAC Component Selection
 
-<img src=https://github.com/htrinkle/FPGA/blob/main/images/DAC_Components.jpg>
+<img src=https://github.com/htrinkle/FPGA/blob/main/images/DAC_Components_1.jpg>
 
 ## DAC Testing
 
