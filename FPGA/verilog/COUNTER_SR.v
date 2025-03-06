@@ -3,8 +3,11 @@ module COUNTER_SR #(
 )(
 	input wire clk,
 	input wire sReset,
-	output reg [BITS-1:0] q
+	output reg [BITS-1:0] q,
+	output wire carry
 );
+
+assign carry = &q;
 
 always @(posedge clk)
 begin

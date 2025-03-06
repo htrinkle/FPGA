@@ -7,17 +7,17 @@
 :vpi_module "C:\iverilog\lib\ivl\vhdl_textio.vpi";
 :vpi_module "C:\iverilog\lib\ivl\v2005_math.vpi";
 :vpi_module "C:\iverilog\lib\ivl\va_math.vpi";
-S_0000025f5ad0a4f0 .scope module, "tbTestDualDac" "tbTestDualDac" 2 4;
+S_0000028c11bdb170 .scope module, "tbTestDualDac" "tbTestDualDac" 2 4;
  .timescale 0 0;
-L_0000025f5ad1b0a0 .functor NOT 1, v0000025f5ad6ca50_0, C4<0>, C4<0>, C4<0>;
-v0000025f5ad6ca50_0 .var "button_press", 0 0;
-v0000025f5ad6caf0_0 .var "clk", 0 0;
-v0000025f5ad6cd70_0 .net "dac_a_c", 0 0, L_0000025f5ad1b260;  1 drivers
-v0000025f5ad6c410_0 .net "dac_a_d", 7 0, L_0000025f5ad1b490;  1 drivers
-v0000025f5ad6c870_0 .net "dac_b_c", 0 0, L_0000025f5ad1b420;  1 drivers
-v0000025f5ad6c550_0 .net "dac_b_d", 7 0, L_0000025f5ad1b2d0;  1 drivers
-v0000025f5ad6c0f0_0 .net "led_display", 2 0, L_0000025f5ad6cf50;  1 drivers
-S_0000025f5ad193c0 .scope module, "dut1" "TEST_DUAL_DAC" 2 14, 3 1 0, S_0000025f5ad0a4f0;
+L_0000028c11beb4c0 .functor NOT 1, v0000028c11c3c510_0, C4<0>, C4<0>, C4<0>;
+v0000028c11c3c510_0 .var "button_press", 0 0;
+v0000028c11c3cdd0_0 .var "clk", 0 0;
+v0000028c11c3c650_0 .net "dac_a_c", 0 0, L_0000028c11beb610;  1 drivers
+v0000028c11c3c010_0 .net "dac_a_d", 7 0, L_0000028c11beb060;  1 drivers
+v0000028c11c3cc90_0 .net "dac_b_c", 0 0, L_0000028c11beaff0;  1 drivers
+v0000028c11c3c8d0_0 .net "dac_b_d", 7 0, L_0000028c11beb0d0;  1 drivers
+v0000028c11c3c0b0_0 .net "led_display", 2 0, L_0000028c11c3c290;  1 drivers
+S_0000028c11be9540 .scope module, "dut1" "TEST_DUAL_DAC" 2 14, 3 1 0, S_0000028c11bdb170;
  .timescale 0 0;
     .port_info 0 /INPUT 1 "clk";
     .port_info 1 /INPUT 1 "button";
@@ -26,127 +26,134 @@ S_0000025f5ad193c0 .scope module, "dut1" "TEST_DUAL_DAC" 2 14, 3 1 0, S_0000025f
     .port_info 4 /OUTPUT 8 "dac_b_d";
     .port_info 5 /OUTPUT 1 "dac_a_c";
     .port_info 6 /OUTPUT 1 "dac_b_c";
-P_0000025f5ad0b060 .param/l "LED_CTR_WIDTH" 1 3 11, +C4<00000000000000000000000000011000>;
-L_0000025f5ad1b260 .functor BUFZ 1, v0000025f5ad6caf0_0, C4<0>, C4<0>, C4<0>;
-L_0000025f5ad1b420 .functor BUFZ 1, v0000025f5ad6caf0_0, C4<0>, C4<0>, C4<0>;
-L_0000025f5ad1b490 .functor BUFZ 8, v0000025f5ad15ad0_0, C4<00000000>, C4<00000000>, C4<00000000>;
-L_0000025f5ad1b2d0 .functor BUFZ 8, v0000025f5ad15ad0_0, C4<00000000>, C4<00000000>, C4<00000000>;
-L_0000025f5ad1aee0 .functor NOT 1, L_0000025f5ad1b0a0, C4<0>, C4<0>, C4<0>;
-L_0000025f5ad1af50 .functor NOT 1, L_0000025f5ad1b0a0, C4<0>, C4<0>, C4<0>;
-v0000025f5ad15a30_0 .var "buf0", 7 0;
-v0000025f5ad15ad0_0 .var "buf1", 7 0;
-v0000025f5ad15b70_0 .net "button", 0 0, L_0000025f5ad1b0a0;  1 drivers
-v0000025f5ad15c10_0 .net "clk", 0 0, v0000025f5ad6caf0_0;  1 drivers
-v0000025f5acc6380_0 .net "dac_a_c", 0 0, L_0000025f5ad1b260;  alias, 1 drivers
-v0000025f5ad6ceb0_0 .net "dac_a_d", 7 0, L_0000025f5ad1b490;  alias, 1 drivers
-v0000025f5ad6ce10_0 .net "dac_b_c", 0 0, L_0000025f5ad1b420;  alias, 1 drivers
-v0000025f5ad6c910_0 .net "dac_b_d", 7 0, L_0000025f5ad1b2d0;  alias, 1 drivers
-v0000025f5ad6c9b0_0 .net "led", 2 0, L_0000025f5ad6cf50;  alias, 1 drivers
-v0000025f5ad6c370_0 .net "led_q", 23 0, v0000025f5ad065d0_0;  1 drivers
-v0000025f5ad6ccd0_0 .net "ramp", 7 0, v0000025f5ad196e0_0;  1 drivers
-E_0000025f5ad0ae60 .event negedge, v0000025f5ad0a680_0;
-L_0000025f5ad6cf50 .part v0000025f5ad065d0_0, 21, 3;
-S_0000025f5ad19550 .scope module, "led_ctr" "COUNTER_SR" 3 28, 4 1 0, S_0000025f5ad193c0;
+P_0000028c11bd8bf0 .param/l "LED_CTR_WIDTH" 1 3 11, +C4<00000000000000000000000000011000>;
+L_0000028c11beb610 .functor BUFZ 1, v0000028c11c3cdd0_0, C4<0>, C4<0>, C4<0>;
+L_0000028c11beaff0 .functor BUFZ 1, v0000028c11c3cdd0_0, C4<0>, C4<0>, C4<0>;
+L_0000028c11beb060 .functor BUFZ 8, v0000028c11d266f0_0, C4<00000000>, C4<00000000>, C4<00000000>;
+L_0000028c11beb0d0 .functor BUFZ 8, v0000028c11d266f0_0, C4<00000000>, C4<00000000>, C4<00000000>;
+L_0000028c11beb370 .functor NOT 1, L_0000028c11beb4c0, C4<0>, C4<0>, C4<0>;
+L_0000028c11beb140 .functor NOT 1, L_0000028c11beb4c0, C4<0>, C4<0>, C4<0>;
+v0000028c11d26650_0 .var "buf0", 7 0;
+v0000028c11d266f0_0 .var "buf1", 7 0;
+v0000028c11d26790_0 .net "button", 0 0, L_0000028c11beb4c0;  1 drivers
+v0000028c11c3c970_0 .net "clk", 0 0, v0000028c11c3cdd0_0;  1 drivers
+v0000028c11c3ce70_0 .net "dac_a_c", 0 0, L_0000028c11beb610;  alias, 1 drivers
+v0000028c11c3c470_0 .net "dac_a_d", 7 0, L_0000028c11beb060;  alias, 1 drivers
+v0000028c11c3cab0_0 .net "dac_b_c", 0 0, L_0000028c11beaff0;  alias, 1 drivers
+v0000028c11c3cb50_0 .net "dac_b_d", 7 0, L_0000028c11beb0d0;  alias, 1 drivers
+v0000028c11c3cbf0_0 .net "led", 2 0, L_0000028c11c3c290;  alias, 1 drivers
+v0000028c11c3c330_0 .net "led_q", 23 0, v0000028c11d26b70_0;  1 drivers
+v0000028c11c3c5b0_0 .net "ramp", 7 0, v0000028c11d26510_0;  1 drivers
+E_0000028c11bd94b0 .event negedge, v0000028c11bd8a60_0;
+L_0000028c11c3c290 .part v0000028c11d26b70_0, 21, 3;
+S_0000028c11be96d0 .scope module, "led_ctr" "COUNTER_SR" 3 28, 4 1 0, S_0000028c11be9540;
  .timescale 0 0;
     .port_info 0 /INPUT 1 "clk";
     .port_info 1 /INPUT 1 "sReset";
     .port_info 2 /OUTPUT 24 "q";
-P_0000025f5ad0b420 .param/l "BITS" 0 4 2, +C4<00000000000000000000000000011000>;
-v0000025f5ad0a680_0 .net "clk", 0 0, v0000025f5ad6caf0_0;  alias, 1 drivers
-v0000025f5ad065d0_0 .var "q", 23 0;
-v0000025f5acc6b70_0 .net "sReset", 0 0, L_0000025f5ad1af50;  1 drivers
-E_0000025f5ad0aaa0 .event posedge, v0000025f5ad0a680_0;
-S_0000025f5ad158a0 .scope module, "ramp_ctr" "COUNTER_SR" 3 25, 4 1 0, S_0000025f5ad193c0;
+    .port_info 3 /OUTPUT 1 "carry";
+P_0000028c11bd99f0 .param/l "BITS" 0 4 2, +C4<00000000000000000000000000011000>;
+v0000028c11bdb300_0 .net "carry", 0 0, L_0000028c11c3c1f0;  1 drivers
+v0000028c11bd8a60_0 .net "clk", 0 0, v0000028c11c3cdd0_0;  alias, 1 drivers
+v0000028c11d26b70_0 .var "q", 23 0;
+v0000028c11d26d90_0 .net "sReset", 0 0, L_0000028c11beb140;  1 drivers
+E_0000028c11bd91f0 .event posedge, v0000028c11bd8a60_0;
+L_0000028c11c3c1f0 .reduce/and v0000028c11d26b70_0;
+S_0000028c11d26380 .scope module, "ramp_ctr" "COUNTER_SR" 3 25, 4 1 0, S_0000028c11be9540;
  .timescale 0 0;
     .port_info 0 /INPUT 1 "clk";
     .port_info 1 /INPUT 1 "sReset";
     .port_info 2 /OUTPUT 8 "q";
-P_0000025f5ad0afe0 .param/l "BITS" 0 4 2, +C4<00000000000000000000000000001000>;
-v0000025f5acc6d90_0 .net "clk", 0 0, v0000025f5ad6caf0_0;  alias, 1 drivers
-v0000025f5ad196e0_0 .var "q", 7 0;
-v0000025f5ad19780_0 .net "sReset", 0 0, L_0000025f5ad1aee0;  1 drivers
-    .scope S_0000025f5ad158a0;
+    .port_info 3 /OUTPUT 1 "carry";
+P_0000028c11bd96f0 .param/l "BITS" 0 4 2, +C4<00000000000000000000000000001000>;
+v0000028c11be9860_0 .net "carry", 0 0, L_0000028c11c3cd30;  1 drivers
+v0000028c11be9900_0 .net "clk", 0 0, v0000028c11c3cdd0_0;  alias, 1 drivers
+v0000028c11d26510_0 .var "q", 7 0;
+v0000028c11d265b0_0 .net "sReset", 0 0, L_0000028c11beb370;  1 drivers
+L_0000028c11c3cd30 .reduce/and v0000028c11d26510_0;
+    .scope S_0000028c11d26380;
 T_0 ;
-    %wait E_0000025f5ad0aaa0;
-    %load/vec4 v0000025f5ad19780_0;
+    %wait E_0000028c11bd91f0;
+    %load/vec4 v0000028c11d265b0_0;
     %flag_set/vec4 8;
     %jmp/0 T_0.0, 8;
     %pushi/vec4 0, 0, 8;
     %jmp/1 T_0.1, 8;
 T_0.0 ; End of true expr.
-    %load/vec4 v0000025f5ad196e0_0;
+    %load/vec4 v0000028c11d26510_0;
     %addi 1, 0, 8;
     %jmp/0 T_0.1, 8;
  ; End of false expr.
     %blend;
 T_0.1;
-    %assign/vec4 v0000025f5ad196e0_0, 0;
+    %assign/vec4 v0000028c11d26510_0, 0;
     %jmp T_0;
     .thread T_0;
-    .scope S_0000025f5ad19550;
+    .scope S_0000028c11be96d0;
 T_1 ;
-    %wait E_0000025f5ad0aaa0;
-    %load/vec4 v0000025f5acc6b70_0;
+    %wait E_0000028c11bd91f0;
+    %load/vec4 v0000028c11d26d90_0;
     %flag_set/vec4 8;
     %jmp/0 T_1.0, 8;
     %pushi/vec4 0, 0, 24;
     %jmp/1 T_1.1, 8;
 T_1.0 ; End of true expr.
-    %load/vec4 v0000025f5ad065d0_0;
+    %load/vec4 v0000028c11d26b70_0;
     %addi 1, 0, 24;
     %jmp/0 T_1.1, 8;
  ; End of false expr.
     %blend;
 T_1.1;
-    %assign/vec4 v0000025f5ad065d0_0, 0;
+    %assign/vec4 v0000028c11d26b70_0, 0;
     %jmp T_1;
     .thread T_1;
-    .scope S_0000025f5ad193c0;
+    .scope S_0000028c11be9540;
 T_2 ;
-    %wait E_0000025f5ad0ae60;
-    %load/vec4 v0000025f5ad15a30_0;
-    %load/vec4 v0000025f5ad6ccd0_0;
+    %wait E_0000028c11bd94b0;
+    %load/vec4 v0000028c11d26650_0;
+    %inv;
+    %load/vec4 v0000028c11c3c5b0_0;
     %concat/vec4; draw_concat_vec4
     %split/vec4 8;
-    %store/vec4 v0000025f5ad15a30_0, 0, 8;
-    %store/vec4 v0000025f5ad15ad0_0, 0, 8;
+    %store/vec4 v0000028c11d26650_0, 0, 8;
+    %store/vec4 v0000028c11d266f0_0, 0, 8;
     %jmp T_2;
     .thread T_2;
-    .scope S_0000025f5ad0a4f0;
+    .scope S_0000028c11bdb170;
 T_3 ;
     %pushi/vec4 0, 0, 1;
-    %store/vec4 v0000025f5ad6caf0_0, 0, 1;
+    %store/vec4 v0000028c11c3cdd0_0, 0, 1;
     %end;
     .thread T_3;
-    .scope S_0000025f5ad0a4f0;
+    .scope S_0000028c11bdb170;
 T_4 ;
     %vpi_call 2 25 "$display", "Starting" {0 0 0};
     %pushi/vec4 0, 0, 1;
-    %store/vec4 v0000025f5ad6ca50_0, 0, 1;
+    %store/vec4 v0000028c11c3c510_0, 0, 1;
     %delay 100, 0;
     %pushi/vec4 1, 0, 1;
-    %store/vec4 v0000025f5ad6ca50_0, 0, 1;
+    %store/vec4 v0000028c11c3c510_0, 0, 1;
     %delay 100, 0;
     %pushi/vec4 0, 0, 1;
-    %store/vec4 v0000025f5ad6ca50_0, 0, 1;
+    %store/vec4 v0000028c11c3c510_0, 0, 1;
     %delay 10000, 0;
     %vpi_call 2 32 "$finish" {0 0 0};
     %vpi_call 2 33 "$display", "Finished" {0 0 0};
     %end;
     .thread T_4;
-    .scope S_0000025f5ad0a4f0;
+    .scope S_0000028c11bdb170;
 T_5 ;
     %vpi_call 2 38 "$dumpfile", "tbTestDualDac.vcd" {0 0 0};
-    %vpi_call 2 39 "$dumpvars", 32'sb00000000000000000000000000000010, S_0000025f5ad0a4f0 {0 0 0};
+    %vpi_call 2 39 "$dumpvars", 32'sb00000000000000000000000000000010, S_0000028c11bdb170 {0 0 0};
     %end;
     .thread T_5;
-    .scope S_0000025f5ad0a4f0;
+    .scope S_0000028c11bdb170;
 T_6 ;
 T_6.0 ;
     %delay 5, 0;
-    %load/vec4 v0000025f5ad6caf0_0;
+    %load/vec4 v0000028c11c3cdd0_0;
     %inv;
-    %assign/vec4 v0000025f5ad6caf0_0, 0;
+    %assign/vec4 v0000028c11c3cdd0_0, 0;
     %jmp T_6.0;
     %end;
     .thread T_6;
