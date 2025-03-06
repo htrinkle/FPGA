@@ -39,6 +39,13 @@ The board was built and tested in stages.
 
 <img src=https://github.com/htrinkle/FPGA/blob/main/images/DAC_Ramp_No_OpAmp.bmp>
 
+### Dual DAC RAMP at 24MHz clk
+
+DAC output was measured with Siglent DSO (vs FNIRSI tablet) for higher accuracy.  Also, propper "spring" earthing was used rather than longer aligator clip earth leads.  These pictures show he actual analog performance of the DAC stages.
+
+<img src=https://github.com/htrinkle/FPGA/blob/main/images/DAC_A_RAMP.jpg alt="DAC A" width="300">
+<img src=https://github.com/htrinkle/FPGA/blob/main/images/DAC_B_RAMP.jpg alt="DAC B" width="300">
+
 # For next time
 
 Following is a list of hardwar errors or things that could be improved.
