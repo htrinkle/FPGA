@@ -37,7 +37,7 @@ The board was built and tested in stages.
 
 ### DAC Ramp, measured at load resistors.  Noise in output is probably due to poor earthing of scope probes.  Also note that this waveform was captured before installation of any output fultering capacitors.
 
-<img src=https://github.com/htrinkle/FPGA/blob/main/images/DAC_Ramp_No_OpAmp.bmp>
+<img src=https://github.com/htrinkle/FPGA/blob/main/images/DAC_Ramp_No_OpAmp.bmp alt="DAC A unbuffered" width="300">
 
 ### Dual DAC RAMP at 24MHz clk
 
