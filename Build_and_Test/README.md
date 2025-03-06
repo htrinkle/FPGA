@@ -47,6 +47,7 @@ DAC output was measured with Siglent DSO (vs FNIRSI tablet) for higher accuracy.
 <img src=https://github.com/htrinkle/FPGA/blob/main/images/DAC_B_RAMP.jpg alt="DAC B" width="300">
 
 Measured Frequency: 94.7499KHz
+
 Expected Frequency: 24MHz / 256 = 94.75KHz. (OK)
 
 # For next time
