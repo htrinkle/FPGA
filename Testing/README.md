@@ -38,3 +38,16 @@ The board was built and tested in stages.
 ### DAC Ramp, measured at load resistors.  Noise in output is probably due to poor earthing of scope probes.  Also note that this waveform was captured before installation of any output fultering capacitors.
 
 <img src=https://github.com/htrinkle/FPGA/blob/main/images/DAC_Ramp_No_OpAmp.bmp>
+
+# For next time
+
+Following is a list of hardwar errors or things that could be improved.
+
+| Issue | Suggested Improvement | Comment |
+|-|-|-|
+| VCC Power led is sandwitched between two headers.  Need to solder before header installation | Omit LED and current limiting resistor. | LEDs on 3.3V rail and AVDD rail are sufficient. |
+| R0402 x 4 resistor arrays are hard to hand-solder. | Extend solder pads so that it is easier to get heat from iron onto pad. | R0402 was selected to keep wiring short and lengths approximately matched.  Don't want to upgrade to R0603x4 footprint for that reason. |
+| VUSB to VCC jumper is too close to PMOD header strip | Move slightly toward mounting hole | |
+| DAC buffer op-amp layout includes separate feedback resistor and capacitor, but no capacitor included in non-inverting network. |  Could simply piggy-back capacitor and resistor.  Alternatively, add filter capacitor to non-inverting input. | Prefer to piggy-back as this keeps stray capacitances lowest. |
+| Buffered ADC ref voltage ouput not that useful. | Ideally want V_offset from DAC buffers.  Then it would be possible to reference ADC inputs against DAC offset. |  Not an issue if using AC-coupling.  Also DAC offset is AVDD/2, so can generate in analog shield if needed. |
+
