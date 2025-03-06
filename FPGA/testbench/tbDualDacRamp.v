@@ -1,6 +1,7 @@
 `include "../verilog/COUNTER_SR.v"
+`include "../verilog/TEST_DUAL_DAC.v"
 
-module tbDualDacRamp();
+module tbTestDualDac();
 
 reg button_press;
 reg clk = 0;
@@ -10,8 +11,15 @@ wire [7:0] dac_b_d;
 wire dac_a_c;
 wire dac_b_c;
 
-COUNTER_SR #(.BITS(8)) dut1(.clk(clk), .sReset(button_press), .q(dac_a_d));
-COUNTER_SR #(.BITS(8)) dut2(.clk(clk), .sReset(button_press), .q(dac_b_d));
+TEST_DUAL_DAC dut1(
+  .clk(clk), 
+  .button(~button_press), 
+  .led(led_display), 
+  .dac_a_d(dac_a_d), 
+  .dac_b_d(dac_b_d),
+  .dac_a_c(dac_a_c), 
+  .dac_b_c(dac_b_c)
+);
 
 initial begin
     $display("Starting");
@@ -27,8 +35,8 @@ end
 
 // Setup Dump File
 initial begin
-    $dumpfile("tbDualDacRamp.vcd");
-    $dumpvars(2, tbDualDacRamp);
+    $dumpfile("tbTestDualDac.vcd");
+    $dumpvars(2, tbTestDualDac);
 end
 
 // Clock
