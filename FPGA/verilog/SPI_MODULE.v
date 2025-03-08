@@ -10,8 +10,17 @@ wire mosi_o;
 wire rst;
 wire rd;
 wire wr;
+wire [7:0] control_word;
+wire control_read;
+wire miso_c, miso_0, miso_1;
+wire sel_c, sel_0, sel_1;
 
-SPI_SYNC SPI_SYNC_inst(
+assign sel_c = rd & ~control_read;
+assign sel_0 = rd & control_read & ~control_word[0];
+assign sel_1 = rd & control_read &  control_word[0];
+assign miso = (~control_read) ? miso_c : control_word[0] ? miso_1 : miso_0;
+
+SPI_SYNC spi_sync_inst(
 	.clk(clk),
 	.sck(sck),
 	.ncs(ncs),
@@ -19,8 +28,46 @@ SPI_SYNC SPI_SYNC_inst(
 	.mosi_out(mosi_o),
 	.spi_reset(rst), 
 	.spi_read(rd),
-	.spi_write(wr),
+	.spi_write(wr)
 );
 
+sr #(.N(8)) sr_ctrl (
+    // Control
+	.clk(clk),
+	.sel(sel_c),
+	.si(mosi_o),
+	.so(miso_c),
+	.reset_flag(rst),
+	// Data
+	.full(control_read),	
+	.data_in(8'h5a),
+	.q(control_word)
+);
+
+sr #(.N(32)) sr_32_0 (
+    // Control
+	.clk(clk),
+	.sel(sel_0),
+	.si(mosi_o),
+	.so(miso_0),
+	.reset_flag(rst),
+	// Data
+	//.full(tmp),	
+	.data_in(32'h01234567)
+	//.q(control_word)
+);
+
+sr #(.N(32)) sr_32_1 (
+    // Control
+	.clk(clk),
+	.sel(sel_1),
+	.si(mosi_o),
+	.so(miso_1),
+	.reset_flag(rst),
+	// Data
+	//.full(tmp),	
+	.data_in(32'h11223344)
+	//.q(control_word)
+);
 
 endmodule

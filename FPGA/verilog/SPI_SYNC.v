@@ -6,7 +6,7 @@ module SPI_SYNC(
 	output reg mosi_out,
 	output wire spi_reset, 
 	output wire spi_read,
-	output wire spi_write,
+	output wire spi_write
 );
 
 reg [1:0] sck_buf;
@@ -20,7 +20,7 @@ wire next_sck_state;
 wire ncs_low;
 wire ncs_high;
 wire sck_low;
-wire ncs_low;
+wire sck_high;
 
 ////////////////////////////////////
 // Assignments
@@ -29,18 +29,18 @@ wire ncs_low;
 assign ncs_not_low = |ncs_buf;
 assign sck_not_low = |sck_buf;
 assign ncs_high = &ncs_buf;
-assign sck_high = &ncs_buf;
+assign sck_high = &sck_buf;
 
 // sck and ncs state machine
 assign next_sck_state = sck_high | (sck_state & sck_not_low); 
-assign next_sck_state = ncs_high | (ncs_state & ncs_not_low); 
+assign next_ncs_state = ncs_high | (ncs_state & ncs_not_low); 
 
 // read/write strobes on sck transitions while ncs is asserted (low)
-assign sspi_read = (~sck_state & next_sck_state) & ~sck__state;
-assign spi_write = (sck_state & ~next_sck_state) & ~sck_state;
+assign spi_read = (~sck_state & next_sck_state) & ~ncs_state;
+assign spi_write = (sck_state & ~next_sck_state) & ~ncs_state;
 
 // reset SPI module counters on ncs falling edge
-assign spi_reset = (ncs_state & ~next_ncs_state) & ~ncs_state;
+assign spi_reset = ncs_state & ~next_ncs_state;
 
 ////////////////////////////////////
 // Control
