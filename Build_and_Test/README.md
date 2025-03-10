@@ -61,4 +61,5 @@ Following is a list of hardwar errors or things that could be improved.
 | VUSB to VCC jumper is too close to PMOD header strip | Move slightly toward mounting hole | |
 | DAC buffer op-amp layout includes separate feedback resistor and capacitor, but no capacitor included in non-inverting network. |  Could simply piggy-back capacitor and resistor.  Alternatively, add filter capacitor to non-inverting input. | Prefer to piggy-back as this keeps stray capacitances lowest. |
 | Buffered ADC ref voltage ouput not that useful. | Ideally want V_offset from DAC buffers.  Then it would be possible to reference ADC inputs against DAC offset. |  Not an issue if using AC-coupling.  Also DAC offset is AVDD/2, so can generate in analog shield if needed. |
+| ADC outputs should default to FPGA Inputs. | Set default for unused pins to weak pull-up during development. | Otherwise ADC will drive against GND. |
 
