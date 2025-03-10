@@ -42,7 +42,7 @@ initial begin
   #10
   
   // SPI(32)
-  tx_cmd = 8'ha0;
+  tx_cmd = 8'hb0;
   tx_data = 32'h24af55aa;
   $display("Printing %2x %8X", tx_cmd, tx_data);
   #1 nCS = 0;

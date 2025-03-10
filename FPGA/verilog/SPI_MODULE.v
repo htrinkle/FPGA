@@ -3,7 +3,8 @@ module SPI_MODULE(
 	input wire sck,
 	input wire mosi,
 	input wire ncs,
-	output wire miso
+	output wire miso,
+	output wire [7:0] q_c
 );
 
 wire mosi_o;
@@ -19,6 +20,7 @@ assign sel_c = rd & ~control_read;
 assign sel_0 = rd & control_read & ~control_word[0];
 assign sel_1 = rd & control_read &  control_word[0];
 assign miso = (~control_read) ? miso_c : control_word[0] ? miso_1 : miso_0;
+assign q_c = control_word;
 
 SPI_SYNC spi_sync_inst(
 	.clk(clk),
@@ -40,7 +42,7 @@ sr #(.N(8)) sr_ctrl (
 	.reset_flag(rst),
 	// Data
 	.full(control_read),	
-	.data_in(8'h5a),
+	.data_in({control_word[7:4], 4'ha}),
 	.q(control_word)
 );
 
