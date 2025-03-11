@@ -4,10 +4,10 @@
 module tb_test_osc();
 
 reg button_press;
-reg clk;
+reg clk = 0;
 wire [2:0] led_display;
 
-test_osc #(.OscF(5)) dut(.clk(clk), .button(button_press), .led(led_display));
+test_osc #(.OscF(5)) dut(.clk(clk), .button(~button_press), .led(led_display));
 
 initial begin
     $display("Starting");
@@ -16,7 +16,7 @@ initial begin
     button_press = 1'b1;
     # 100
     button_press = 1'b0;
-    # 10000
+    # 100000
     $finish;
     $display("Finished");
 end

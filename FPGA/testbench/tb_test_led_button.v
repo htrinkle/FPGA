@@ -1,12 +1,12 @@
 
-`include "../verilog/TEST_PB_LED.v"
+`include "../verilog/test_code/test_led_button.v"
 
-module tbBoardTest();
+module tb_test_led_button();
 
 reg button_press;
 wire [2:0] led_display;
 
-TEST_PB_LED dut(button_press, led_display);
+test_led_button dut(~button_press, led_display);
 
 initial begin
     $display("Starting");
@@ -22,8 +22,8 @@ end
 
 // Setup Dump File
 initial begin
-    $dumpfile("tbBoardTest.vcd");
-    $dumpvars(2, tbBoardTest);
+    $dumpfile("tb_test_led_button.vcd");
+    $dumpvars(2, tb_test_led_button);
 end
 
 endmodule

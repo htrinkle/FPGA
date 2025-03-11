@@ -2,7 +2,7 @@
 `include "../verilog/spi_sync.v"
 `include "../verilog/shift_register.v"
 
-module tbSpi();
+module tb_spi_module();
 
 wire miso;
 
@@ -36,8 +36,8 @@ wire [31:0] q0, q1;
 
 
 initial begin 
-  $dumpfile("tbSpi.vcd");
-  $dumpvars(3, tbSpi);
+  $dumpfile("tb_spi_module.vcd");
+  $dumpvars(3, tb_spi_module);
   #10 $display("init");
   
   #1 clk = 0;
@@ -50,7 +50,7 @@ initial begin
   // SPI(32)
   tx_cmd = 8'ha0;
   tx_data = 32'h24af55aa;
-  $display("Printing %2x %8X", tx_cmd, tx_data);
+  $display("Send %2x %8X", tx_cmd, tx_data);
   #1 nCS = 0;
   for (i=0; i<8; i++) begin
 	mosi = tx_cmd[7-i];
@@ -73,7 +73,7 @@ initial begin
   // SPI(32)
   tx_cmd = 8'h51;
   tx_data = 32'h01234567;
-  $display("Printing %2x %8X", tx_cmd, tx_data);
+  $display("Send %2x %8X", tx_cmd, tx_data);
   #1 nCS = 0;
   for (i=0; i<8; i++) begin
 	mosi = tx_cmd[7-i];

@@ -12,11 +12,14 @@ localparam CtrWidth= $clog2(HalfOscF);
 reg [CtrWidth-1:0] ctr; 
 reg [2:0] led_buf;
 
-assign led = ~led_buf;
+assign led = led_buf;
 
 always @(posedge clk) 
 begin
-	ctr <= (ctr == HalfOscF) ? 0 : ctr + 1'd1;
+	if (~button)
+		ctr <= 0;
+	else
+		ctr <= (ctr == HalfOscF) ? 0 : ctr + 1'd1;
 end
 
 always @(posedge clk) 
