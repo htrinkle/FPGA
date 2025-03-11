@@ -1,13 +1,13 @@
 
-`include "../verilog/TEST_24MHZ_CLOCK.v"
+`include "../verilog/test_code/test_osc.v"
 
-module tbBoardTest();
+module tb_test_osc();
 
 reg button_press;
 reg clk;
 wire [2:0] led_display;
 
-TEST_24MHZ_CLOCK #(.OSC_F(5)) dut(.clk(clk), .button(button_press), .led(ed_display));
+test_osc #(.OscF(5)) dut(.clk(clk), .button(button_press), .led(led_display));
 
 initial begin
     $display("Starting");
@@ -23,8 +23,8 @@ end
 
 // Setup Dump File
 initial begin
-    $dumpfile("tbBoardTest.vcd");
-    $dumpvars(2, tbBoardTest);
+    $dumpfile("tb_test_osc.vcd");
+    $dumpvars(2, tb_test_osc);
 end
 
 // Clock

@@ -1,9 +1,9 @@
-module COUNTER_SR #(
-	parameter BITS = 8
+module counter_sr #(
+	parameter Bits = 8
 )(
 	input wire clk,
-	input wire sReset,
-	output reg [BITS-1:0] q,
+	input wire sync_reset,
+	output reg [Bits-1:0] q,
 	output wire carry
 );
 
@@ -11,7 +11,7 @@ assign carry = &q;
 
 always @(posedge clk)
 begin
-    q <= (sReset) ? 0 : q + 1'd1;
+    q <= (sync_reset) ? 0 : q + 1'd1;
 end
 
 endmodule

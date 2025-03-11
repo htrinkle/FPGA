@@ -1,6 +1,6 @@
-`include "../verilog/SPI_MODULE.v"
-`include "../verilog/SPI_SYNC.v"
-`include "../verilog/SR.v"
+`include "../verilog/spi_module.v"
+`include "../verilog/spi_sync.v"
+`include "../verilog/shift_register.v"
 
 module tbSpi();
 
@@ -11,13 +11,19 @@ reg mosi = 0;
 reg sck = 0;
 reg nCS = 1;
 
+wire [7:0] q_c;
+wire [31:0] q_0, q_1;
 
-SPI_MODULE dut (
+
+spi_module dut (
 	.clk(clk),
 	.sck(sck),
 	.mosi(mosi),
 	.ncs(nCS),
-	.miso(miso)
+	.miso(miso),
+    .q_c(q_c),
+	.q_0(q_0),
+	.q_1(q_1)
 );
 
 reg [31:0] tx_data = 0;
@@ -42,7 +48,7 @@ initial begin
   #10
   
   // SPI(32)
-  tx_cmd = 8'hb0;
+  tx_cmd = 8'ha0;
   tx_data = 32'h24af55aa;
   $display("Printing %2x %8X", tx_cmd, tx_data);
   #1 nCS = 0;
@@ -62,7 +68,7 @@ initial begin
   $display("Received %2x %08x", rx_stat, rx_data);
   
   // Delay
-  #47
+  #44
   
   // SPI(32)
   tx_cmd = 8'h51;

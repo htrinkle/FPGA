@@ -1,4 +1,4 @@
-module SPI_SYNC(
+module spi_sync(
 	input wire clk,
 	input wire sck,
 	input wire ncs,

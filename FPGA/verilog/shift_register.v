@@ -1,4 +1,4 @@
-module sr #(
+module shift_register #(
 	parameter N = 8
 )(
    // Control

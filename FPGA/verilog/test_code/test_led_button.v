@@ -1,4 +1,4 @@
-module TEST_PB_LED ( 
+module test_led_button ( 
     input wire button,
     output wire[2:0] led
 );
