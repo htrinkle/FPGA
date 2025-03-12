@@ -5,11 +5,12 @@ module shift_register #(
 	input wire clk,
 	input wire sel, //implies shift on posedge clk
 	input wire si,
-	output wire so,
+	input wire write_enable,
 	input wire reset_flag,
+	output wire so,
 	// Data
-	output reg full,	
 	input wire [N-1:0] data_in,
+	output reg full,	
 	output reg [N-1:0]  q
 );
 
@@ -41,7 +42,7 @@ always @(posedge clk) begin
 end
 
 // Output Latch
-always @(posedge clk) q <= (latch & full) ? sr : q;
+always @(posedge clk) q <= (latch & full & write_enable) ? sr : q;
 
 // Full latch
 always @(posedge clk) begin

@@ -21,7 +21,7 @@ spi_module dut (
 	.mosi(mosi),
 	.ncs(nCS),
 	.miso(miso),
-    .q_c(q_c),
+  .q_c(q_c),
 	.q_0(q_0),
 	.q_1(q_1)
 );
@@ -47,9 +47,55 @@ initial begin
   #10 $display("hello");
   #10
   
-  // SPI(32)
-  tx_cmd = 8'ha0;
+  // SPI REG0, no Write
+  tx_cmd = 8'ha0; 
   tx_data = 32'h24af55aa;
+  $display("Send %2x %8X", tx_cmd, tx_data);
+  #1 nCS = 0;
+  for (i=0; i<8; i++) begin
+	mosi = tx_cmd[7-i];
+	#137 sck = 1;
+	rx_stat = {rx_stat[7:0], miso};
+	#137 sck = 0;
+  end
+  for (i=0; i<32; i++) begin
+	mosi = tx_data[31-i];
+	#137 sck = 1;
+	rx_data = {rx_data[30:0], miso};
+	#137 sck = 0;
+  end
+  nCS = 1;
+  $display("Received %2x %08x", rx_stat, rx_data);
+  
+  // Delay
+  #44
+  
+  // SPI REG1, Write
+  tx_cmd = 8'h55;
+  tx_data = 32'h01234567;
+  $display("Send %2x %8X", tx_cmd, tx_data);
+  #1 nCS = 0;
+  for (i=0; i<8; i++) begin
+	mosi = tx_cmd[7-i];
+	#137 sck = 1;
+	rx_stat = {rx_stat[7:0], miso};
+	#137 sck = 0;
+  end
+  for (i=0; i<32; i++) begin
+	mosi = tx_data[31-i];
+	#137 sck = 1;
+	rx_data = {rx_data[30:0], miso};
+	#137 sck = 0;
+  end
+  nCS = 1;
+  $display("Received %2x %08x", rx_stat, rx_data);
+  
+  // Delay
+  #44
+
+// REG0
+  tx_cmd = 8'ha0;
+  tx_data = 32'h01010101;
   $display("Send %2x %8X", tx_cmd, tx_data);
   #1 nCS = 0;
   for (i=0; i<8; i++) begin
@@ -72,7 +118,7 @@ initial begin
   
   // SPI(32)
   tx_cmd = 8'h51;
-  tx_data = 32'h01234567;
+  tx_data = 32'h01010202;
   $display("Send %2x %8X", tx_cmd, tx_data);
   #1 nCS = 0;
   for (i=0; i<8; i++) begin
@@ -89,8 +135,8 @@ initial begin
   end
   nCS = 1;
   $display("Received %2x %08x", rx_stat, rx_data);
-  
-  #2000 $finish;
+
+  #200 $finish;
 end
 
 initial forever begin

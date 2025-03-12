@@ -9,19 +9,33 @@ module spi_module(
 	output wire [31:0] q_1
 );
 
+localparam Reg0 = 2'd0;
+localparam Reg1 = 2'd1;
+
 wire mosi_o;
 wire rst;
 wire rd;
 wire wr;
 wire [7:0] control_word;
-wire control_read;
+wire control_word_latched;
 wire miso_c, miso_0, miso_1;
 wire sel_c, sel_0, sel_1;
+wire [1:0] adr;
+wire write_enable;
 
-assign sel_c = rd & ~control_read;
-assign sel_0 = rd & control_read & ~control_word[0];
-assign sel_1 = rd & control_read &  control_word[0];
-assign miso = (~control_read) ? miso_c : control_word[0] ? miso_1 : miso_0;
+// Break out control signals
+assign {write_enable, adr} = control_word[2:0];
+
+// Shift Register Select Lines
+assign sel_c = rd & ~control_word_latched;
+assign sel_0 = rd & control_word_latched & (adr == Reg0);
+assign sel_1 = rd & control_word_latched & (adr == Reg1);
+
+// MISO Multiplexing
+assign miso = (~control_word_latched) ? miso_c : 
+				(adr == Reg0) ? miso_0 : 
+				(adr == Reg1) ? miso_1 : 1'b0;
+
 assign q_c = control_word;
 
 spi_sync spi_sync_inst(
@@ -41,9 +55,10 @@ shift_register #(.N(8)) sr_ctrl (
 	.sel(sel_c),
 	.si(mosi_o),
 	.so(miso_c),
+	.write_enable(1'b1),
 	.reset_flag(rst),
 	// Data
-	.full(control_read),	
+	.full(control_word_latched),	
 	.data_in({control_word[7:4], 4'ha}),
 	.q(control_word)
 );
@@ -54,10 +69,11 @@ shift_register #(.N(32)) sr_32_0 (
 	.sel(sel_0),
 	.si(mosi_o),
 	.so(miso_0),
+	.write_enable(write_enable),
 	.reset_flag(rst),
 	// Data
 	//.full(tmp),	
-	.data_in(32'h01234567),
+	.data_in(q_0),
 	.q(q_0)
 );
 
@@ -67,10 +83,11 @@ shift_register #(.N(32)) sr_32_1 (
 	.sel(sel_1),
 	.si(mosi_o),
 	.so(miso_1),
+	.write_enable(write_enable),
 	.reset_flag(rst),
 	// Data
 	//.full(tmp),	
-	.data_in(32'h11223344),
+	.data_in(q_1),
 	.q(q_1)
 );
 
