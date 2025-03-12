@@ -1,6 +1,7 @@
 `include "../verilog/spi_module.v"
 `include "../verilog/spi_sync.v"
 `include "../verilog/shift_register.v"
+`include "../verilog/register.v"
 
 module tb_spi_module();
 
