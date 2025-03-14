@@ -3,6 +3,10 @@ module spi_module(
 	input wire sck,
 	input wire mosi,
 	input wire ncs,
+	input wire load_0,
+	input wire load_1,
+	input wire [31:0] data_in_0,
+	input wire [31:0] data_in_1,
 	input wire [15:0] mem_data,
 	output wire miso,
 	output wire [7:0] q_c,
@@ -32,6 +36,8 @@ wire write_enable;
 wire [7:0] sr_control_out;
 wire [31:0] sr_32_0_out;
 wire [31:0] sr_32_1_out;
+wire [31:0] r_32_0_in;
+wire [31:0] r_32_1_in;
 wire sr_control_done, sr_32_0_done, sr_32_1_done; 
 wire sr_control_done_strobe, sr_32_0_done_strobe, sr_32_1_done_strobe; 
 
@@ -42,6 +48,8 @@ assign sel_c = rd & ~sr_control_done;
 assign sel_0 = rd & sr_control_done & (addr == Reg0);
 assign sel_1 = rd & sr_control_done & (addr == Reg1);
 assign sel_m = rd & sr_control_done & (addr == RegM);
+assign r_32_0_in = (ncs) ? data_in_0 : sr_32_0_out;
+assign r_32_1_in = (ncs) ? data_in_1 : sr_32_1_out;
 
 // MISO Multiplexing
 assign miso = (~sr_control_done) ? miso_c : 
@@ -96,8 +104,8 @@ shift_register #(.N(32)) sr_32_0 (
 
 register #(.N(32)) r_32_0 (
 	.clk(clk),	
-	.write_enable(write_enable & sr_32_0_done_strobe),	
-	.data_in(sr_32_0_out),	
+	.write_enable(write_enable & sr_32_0_done_strobe | ncs & load_0),	
+	.data_in(r_32_0_in),	
 	.q(q_0)
 );
 
@@ -117,8 +125,8 @@ shift_register #(.N(32)) sr_32_1 (
 
 register #(.N(32)) r_32_1 (
 	.clk(clk),	
-	.write_enable(write_enable & sr_32_1_done_strobe),	
-	.data_in(sr_32_1_out),	
+	.write_enable( (write_enable & sr_32_1_done_strobe) | (ncs & load_1) ),	
+	.data_in(r_32_1_in),	
 	.q(q_1)
 );
 
