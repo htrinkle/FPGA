@@ -25,6 +25,7 @@ spi_module dut (
 	.mosi(mosi),
 	.ncs(nCS),
 	.miso(miso),
+  .data_in_1({16'hbabe, q_0[15:0]}),
   .q_c(q_c),
 	.q_0(q_0),
 	.q_1(q_1),
@@ -54,7 +55,7 @@ initial begin
   #10
   
   // SPI REG0, no Write
-  tx_cmd = 8'ha0; 
+  tx_cmd = 8'ha4; 
   tx_data = 32'h24af55aa;
   $display("Send %2x %8X", tx_cmd, tx_data);
   #1 nCS = 0;
@@ -100,7 +101,7 @@ initial begin
   #44
 
 // REG0
-  tx_cmd = 8'ha0;
+  tx_cmd = 8'ha4;
   tx_data = 32'h01010101;
   $display("Send %2x %8X", tx_cmd, tx_data);
   #1 nCS = 0;

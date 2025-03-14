@@ -3,9 +3,6 @@ module spi_module(
 	input wire sck,
 	input wire mosi,
 	input wire ncs,
-	input wire load_0,
-	input wire load_1,
-	input wire [31:0] data_in_0,
 	input wire [31:0] data_in_1,
 	input wire [15:0] mem_data,
 	output wire miso,
@@ -22,7 +19,7 @@ localparam RegM = 2'd2;
 // SPI wiring
 wire mosi_o;
 wire rst;
-wire rd;
+wire spi_sck_rising;
 wire wr;
 
 wire miso_c, miso_0, miso_1, miso_m;
@@ -35,21 +32,16 @@ wire write_enable;
 // Internal Shift Register Wiring
 wire [7:0] sr_control_out;
 wire [31:0] sr_32_0_out;
-wire [31:0] sr_32_1_out;
-wire [31:0] r_32_0_in;
-wire [31:0] r_32_1_in;
 wire sr_control_done, sr_32_0_done, sr_32_1_done; 
 wire sr_control_done_strobe, sr_32_0_done_strobe, sr_32_1_done_strobe; 
 
 // Break out control signals
 assign {write_enable, addr} = sr_control_out[2:0];
 // Shift Register Select Lines
-assign sel_c = rd & ~sr_control_done;
-assign sel_0 = rd & sr_control_done & (addr == Reg0);
-assign sel_1 = rd & sr_control_done & (addr == Reg1);
-assign sel_m = rd & sr_control_done & (addr == RegM);
-assign r_32_0_in = (ncs) ? data_in_0 : sr_32_0_out;
-assign r_32_1_in = (ncs) ? data_in_1 : sr_32_1_out;
+assign sel_c = spi_sck_rising & ~sr_control_done;
+assign sel_0 = spi_sck_rising & sr_control_done & (addr == Reg0);
+assign sel_1 = spi_sck_rising & sr_control_done & (addr == Reg1);
+assign sel_m = spi_sck_rising & sr_control_done & (addr == RegM);
 
 // MISO Multiplexing
 assign miso = (~sr_control_done) ? miso_c : 
@@ -66,9 +58,9 @@ spi_sync spi_sync_inst(
 	.ncs(ncs),
 	.mosi(mosi),
 	.mosi_out(mosi_o),
-	.spi_reset(rst), 
-	.spi_read(rd),
-	.spi_write(wr)
+	.spi_start(rst), 
+	.spi_sck_rising(spi_sck_rising),
+	.spi_sck_falling(spi_sck_falling)
 );
 
 // Shift register for control word
@@ -78,7 +70,6 @@ shift_register #(.N(8)) sr_ctrl (
     // Control
 	.sel(sel_c),
 	.si(mosi_o),
-	//.write_enable(1'b1),
 	.reset_flag(rst),
 	.so(miso_c),
 	.done(sr_control_done),
@@ -88,6 +79,8 @@ shift_register #(.N(8)) sr_ctrl (
 	.data_out(sr_control_out)
 );
 
+// sr_32_0 latches received data into r_32_0 if write flag is set in control word.  
+// output is on q_0
 shift_register #(.N(32)) sr_32_0 (
 	.clk(clk),
 
@@ -97,6 +90,7 @@ shift_register #(.N(32)) sr_32_0 (
 	.so(miso_0),
 	.reset_flag(rst),
 	.done_strobe(sr_32_0_done_strobe),
+
 	// Data	
 	.data_in(q_0),
 	.data_out(sr_32_0_out)
@@ -104,11 +98,12 @@ shift_register #(.N(32)) sr_32_0 (
 
 register #(.N(32)) r_32_0 (
 	.clk(clk),	
-	.write_enable(write_enable & sr_32_0_done_strobe | ncs & load_0),	
-	.data_in(r_32_0_in),	
+	.write_enable(write_enable & sr_32_0_done_strobe),	
+	.data_in(sr_32_0_out),	
 	.q(q_0)
 );
 
+// SR 1 latches data_in when transmission starts and sends to receiver
 shift_register #(.N(32)) sr_32_1 (
 	.clk(clk),
 
@@ -118,18 +113,13 @@ shift_register #(.N(32)) sr_32_1 (
 	.so(miso_1),
 	.reset_flag(rst),
 	.done_strobe(sr_32_1_done_strobe),
+
 	// Data	
-	.data_in(q_1),
-	.data_out(sr_32_1_out)
+	.data_in(data_in_1),
+	.data_out(q_1)
 );
 
-register #(.N(32)) r_32_1 (
-	.clk(clk),	
-	.write_enable( (write_enable & sr_32_1_done_strobe) | (ncs & load_1) ),	
-	.data_in(r_32_1_in),	
-	.q(q_1)
-);
-
+// Sequential memory read
 spi_mem_controller mem_cont_inst(
 	.clk(clk),
 

@@ -4,15 +4,15 @@ module spi_sync(
 	input wire ncs,
 	input wire mosi,
 	output reg mosi_out,
-	output wire spi_reset, 
-	output wire spi_read,
-	output wire spi_write,
+	output wire spi_start,
+	output wire spi_sck_rising,
+	output wire spi_sck_falling,
 	output wire spi_busy
 );
 
-reg [1:0] sck_buf;
-reg [1:0] ncs_buf;
-reg spi_busy_state;
+reg [1:0] sck_buf = 0;
+reg [1:0] ncs_buf = 0;
+reg spi_busy_state = 0;
 
 reg ncs_state;
 reg sck_state;
@@ -28,6 +28,16 @@ wire sck_high;
 ////////////////////////////////////
 // Assignments
 
+// read/write strobes on sck transitions while ncs is asserted (low)
+assign spi_sck_rising = (~sck_state & next_sck_state) & ~ncs_state;
+assign spi_sck_falling = (sck_state & ~next_sck_state) & ~ncs_state;
+
+// reset SPI module counters on ncs falling edge
+assign spi_start = ncs_state & ~next_ncs_state;
+
+// busy
+assign spi_busy = spi_busy_state;
+
 // Internal signals
 assign ncs_not_low = |ncs_buf;
 assign sck_not_low = |sck_buf;
@@ -38,29 +48,20 @@ assign sck_high = &sck_buf;
 assign next_sck_state = sck_high | (sck_state & sck_not_low); 
 assign next_ncs_state = ncs_high | (ncs_state & ncs_not_low); 
 
-// read/write strobes on sck transitions while ncs is asserted (low)
-assign spi_read = (~sck_state & next_sck_state) & ~ncs_state;
-assign spi_write = (sck_state & ~next_sck_state) & ~ncs_state;
-
-// reset SPI module counters on ncs falling edge
-assign spi_reset = ncs_state & ~next_ncs_state;
-
-// busy
-assign spi_busy = spi_busy_state;
-
 ////////////////////////////////////
 // Control
 
 // spi_busy_state
 // SPI is busy while ncs is low, and should remain busy for at least one clock cycle longer than de-bounced 
 // ncs_low to allow SPI data to be latched after transmission.
+
 always @(posedge clk)
 begin
-	if (~ncs) begin // latch as soon as input signal goes low
+	if (~ncs) begin 
 		spi_busy_state <= 1'b1;
-	else if (ncs_state) begin // busy is cleared one clock after ncs_state gois high
+	end else if (ncs_state & ~sck_state) begin 
 		spi_busy_state <= 1'b0;
-	else begin
+	end else begin
 		spi_busy_state <= spi_busy_state;
 	end
 end
