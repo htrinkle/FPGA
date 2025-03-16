@@ -25,7 +25,7 @@ spi_module dut (
 	.mosi(mosi),
 	.ncs(nCS),
 	.miso(miso),
-  .data_in_1({16'hbabe, q_0[15:0]}),
+  .data_in_1({16'hbeef, q_0[15:0]}),
   .q_c(q_c),
 	.q_0(q_0),
 	.q_1(q_1),
@@ -59,17 +59,18 @@ initial begin
   tx_data = 32'h24af55aa;
   $display("Send %2x %8X", tx_cmd, tx_data);
   #1 nCS = 0;
+  #132
   for (i=0; i<8; i++) begin
     mosi = tx_cmd[7-i];
     #137 sck = 1;
-    rx_stat = {rx_stat[7:0], miso};
-    #137 sck = 0;
+    #10 rx_stat = {rx_stat[7:0], miso};
+    #127 sck = 0;
   end
   for (i=0; i<32; i++) begin
     mosi = tx_data[31-i];
     #137 sck = 1;
-    rx_data = {rx_data[30:0], miso};
-    #137 sck = 0;
+    #10 rx_data = {rx_data[30:0], miso};
+    #127 sck = 0;
   end
   nCS = 1;
   $display("Received %2x %08x", rx_stat, rx_data);
@@ -85,14 +86,14 @@ initial begin
   for (i=0; i<8; i++) begin
     mosi = tx_cmd[7-i];
     #137 sck = 1;
-    rx_stat = {rx_stat[7:0], miso};
-    #137 sck = 0;
+    #10 rx_stat = {rx_stat[7:0], miso};
+    #127 sck = 0;
   end
   for (i=0; i<32; i++) begin
     mosi = tx_data[31-i];
     #137 sck = 1;
-    rx_data = {rx_data[30:0], miso};
-    #137 sck = 0;
+    #10 rx_data = {rx_data[30:0], miso};
+    #127 sck = 0;
   end
   nCS = 1;
   $display("Received %2x %08x", rx_stat, rx_data);
@@ -108,14 +109,14 @@ initial begin
   for (i=0; i<8; i++) begin
     mosi = tx_cmd[7-i];
     #137 sck = 1;
-    rx_stat = {rx_stat[7:0], miso};
-    #137 sck = 0;
+    #10 rx_stat = {rx_stat[7:0], miso};
+    #127 sck = 0;
   end
   for (i=0; i<32; i++) begin
     mosi = tx_data[31-i];
     #137 sck = 1;
-    rx_data = {rx_data[30:0], miso};
-    #137 sck = 0;
+    #10 rx_data = {rx_data[30:0], miso};
+    #127 sck = 0;
   end
   nCS = 1;
   $display("Received %2x %08x", rx_stat, rx_data);
@@ -131,14 +132,14 @@ initial begin
   for (i=0; i<8; i++) begin
     mosi = tx_cmd[7-i];
     #137 sck = 1;
-    rx_stat = {rx_stat[7:0], miso};
-    #137 sck = 0;
+    #10 rx_stat = {rx_stat[7:0], miso};
+    #127 sck = 0;
   end
   for (i=0; i<32; i++) begin
     mosi = tx_data[31-i];
     #137 sck = 1;
-    rx_data = {rx_data[30:0], miso};
-    #137 sck = 0;
+    #10 rx_data = {rx_data[30:0], miso};
+    #127 sck = 0;
   end
   nCS = 1;
   $display("Received %2x %08x", rx_stat, rx_data);
@@ -169,8 +170,7 @@ initial begin
   end
 
 
-  #1 nCS = 1;
-  $display("Received %2x %08x", rx_stat, rx_data);
+  #136 nCS = 1;
 
   #200 $finish;
 end

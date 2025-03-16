@@ -20,6 +20,7 @@ localparam RegM = 2'd2;
 wire mosi_o;
 wire rst;
 wire spi_sck_rising;
+wire spi_sck_falling;
 wire wr;
 
 wire miso_c, miso_0, miso_1, miso_m;
@@ -36,20 +37,17 @@ wire sr_control_done, sr_32_0_done, sr_32_1_done;
 wire sr_control_done_strobe, sr_32_0_done_strobe, sr_32_1_done_strobe; 
 
 // Break out control signals
+
 assign {write_enable, addr} = sr_control_out[2:0];
+assign q_c = sr_control_out;
 // Shift Register Select Lines
-assign sel_c = spi_sck_rising & ~sr_control_done;
-assign sel_0 = spi_sck_rising & sr_control_done & (addr == Reg0);
-assign sel_1 = spi_sck_rising & sr_control_done & (addr == Reg1);
-assign sel_m = spi_sck_rising & sr_control_done & (addr == RegM);
+assign sel_c = ~sr_control_done;
+assign sel_0 = sr_control_done & (addr == Reg0);
+assign sel_1 = sr_control_done & (addr == Reg1);
+assign sel_m = sr_control_done & (addr == RegM);
 
 // MISO Multiplexing
-assign miso = (~sr_control_done) ? miso_c : 
-				(addr == Reg0) ? miso_0 : 
-				(addr == Reg1) ? miso_1 : 
-				(addr == RegM) ? miso_m : 1'b0;
-
-assign q_c = sr_control_out;
+assign miso = sel_c & miso_c | sel_0 & miso_0 | sel_1 & miso_1 | sel_m & miso_m;
 
 // SPI SCK sync to internal clock
 spi_sync spi_sync_inst(
@@ -70,12 +68,14 @@ shift_register #(.N(8)) sr_ctrl (
     // Control
 	.sel(sel_c),
 	.si(mosi_o),
+	.falling(spi_sck_falling),
+	.rising(spi_sck_rising),
 	.reset_flag(rst),
 	.so(miso_c),
 	.done(sr_control_done),
 
 	// Data
-	.data_in({sr_control_out[7:4], 4'ha}),
+	.data_in(sr_control_out),
 	.data_out(sr_control_out)
 );
 
@@ -88,6 +88,8 @@ shift_register #(.N(32)) sr_32_0 (
 	.sel(sel_0),
 	.si(mosi_o),
 	.so(miso_0),
+	.falling(spi_sck_falling),
+	.rising(spi_sck_rising),
 	.reset_flag(rst),
 	.done_strobe(sr_32_0_done_strobe),
 
@@ -111,6 +113,8 @@ shift_register #(.N(32)) sr_32_1 (
 	.sel(sel_1),
 	.si(mosi_o),
 	.so(miso_1),
+	.falling(spi_sck_falling),
+	.rising(spi_sck_rising),
 	.reset_flag(rst),
 	.done_strobe(sr_32_1_done_strobe),
 
@@ -127,6 +131,8 @@ spi_mem_controller mem_cont_inst(
 	.sel(sel_m),
 	.si(mosi_o),
 	.so(miso_m),
+	.falling(spi_sck_falling),
+	.rising(spi_sck_rising),
 	.reset_flag(rst),
 
 	// Data	

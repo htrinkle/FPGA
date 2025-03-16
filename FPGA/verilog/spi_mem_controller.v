@@ -4,6 +4,8 @@ module spi_mem_controller(
 	
    // Control
 	input wire sel, //implies shift on posedge clk
+	input wire rising,
+	input wire falling,
 	input wire si,
 	input wire reset_flag,
 	output wire so,
@@ -24,7 +26,7 @@ assign so = data[bit_ctr];
 always @(posedge clk) begin
 	if (reset_flag) begin
 		bit_ctr <= 4'b1111;
-	end else if (sel) begin
+	end else if (sel & falling) begin
 		bit_ctr <=  bit_ctr - 1'b1;
 	end else begin
 		bit_ctr <= bit_ctr;
@@ -35,7 +37,7 @@ end
 always @(posedge clk) begin
 	if (reset_flag) begin
 		addr <= 12'd0;
-	end else if (sel & inc_adr) begin
+	end else if (sel & inc_adr & falling) begin
 		addr <= addr + 1'b1;
 	end else begin
 		addr <= addr;
