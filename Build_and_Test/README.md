@@ -20,7 +20,7 @@ The board was built and tested in stages.
 | MCU | Populate power LED and resistor (if desired) as this will be impossible after MCU headers installed. Populate any unpopulated resistors near MCU headers.  Populate MCU. Note that MCU USB port is facing into the PCB.  This was done to keep the WiFi antenna at the edge.  (Copper ground planes are also omitted under antenna.) | Test MCU with blink sketch.  Test ability to power board from MCU. | Tested OK | 
 | MCU | None | Verilog SPI implementation with ability to read/write to registers implemented on FPGA. | Tested OK |
 | FPGA PMOD | Solder PMOD connectors. | Display SPI-controlled registers on PMOD.  Verify PMOD matches data sent over SPI.  Use of LED PMOD peripheral helps. | Issue found with FPGA PIN_40. |
-| ADC |Solder ADC and remaining components.  Can omit V_Ref buffer for now.  Everything else should now be populated. | Clock at 100 Msps. Verilog code to capture ADC readings and allow MCU to read via SPI. Further ADC chatarcterization to be done later. | Silk screen polarity for ADC A is inverted.  Offset within specification (ADCA ~10mV, ADCB ~5mV).  ADC works reliably. |
+| ADC |Solder ADC and remaining components.  Can omit V_Ref buffer for now.  Everything else should now be populated. | Clock at 100 Msps. Verilog code to capture ADC readings and allow MCU to read via SPI. Further ADC chatarcterization to be done later. | Silk screen polarity for ADCA is inverted.  Offset within specification (ADCA ~10mV, ADCB ~5mV).  ADC works reliably. |
 
 # File Structure
 
