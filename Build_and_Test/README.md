@@ -77,3 +77,21 @@ Following is a list of hardwar errors or things that could be improved.
 | ADC outputs should default to FPGA Inputs. | Set default for unused pins to weak pull-up during development. | Otherwise ADC will drive against GND. Should also consider breaking out PIN_40 for global output enable/disable feature. |
 | PIN_40 seems shorted to PIN_41. Output to PIN_41 was also observed on PIN_40.  It as confirmed that output enable function of PIN_40 was not activated. No PCB faults could be found and this was verified by "lifting" PIN_40 from the solder pad and measuring it in iscolation - still had same output as PIN_41.  Resistance between PIN_40 and PIN_41 measured as ~240 ohm while PIN_40 was lifted. | Not sure why this is occuring.  May be good to break out PIN_40 separately anyway to provide a methoud of disabling all FPGA outputs during software testing anyway. | Hack was to cut trace on PIN_40 and jumper PMOD pin to PIN_9 instead.  PIN_40 was set as input with weak pul-up just in case. Assume faulty FPGA - online purchase. |
 | ADC A label for +/- inputs switched | Update silk-screen. | Fixed in Easy EDA project.|
+
+# ADC Characterization
+
+TODO - deferred till DSO code is ready.  
+
+Note that all testing is with V_common_mode = 1/3 AVDD.
+
+For now its enough to know that board works, analog offset is within 10mV, and analog range is ~ +/1 500mV.  From a design perspective we will aim at +/1 400mV range and leave some head-room.  One ADC bit = 4mV, where input is measured as (V+ - V-).  ADC is configured for differential output with zero (assuming no offset) reading if positive and negative inputs are equal.
+
+## Histogram if ADC reading with V+ = V- (shorted).
+
+## Histogram for input differential of +/- 200mV and 400mV
+
+## Input - Output Transfer Function (-600mV - 600mV)
+
+# Conclusion
+
+This concludes the board build and test activities.  The board is working as designed.  Analog performance is reasonable, given 8 bit architecture.
