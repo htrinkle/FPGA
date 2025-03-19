@@ -1,6 +1,6 @@
 # Building and Testing the FPGA Analog Board
 
-<img src="images/FPGA_Analog_Board_Testing.jpg" alt="isolated" width="200"/>
+<img src="../images/FPGA_Analog_Board_Testing.jpg" width="200"/>
 
 Above image shows the completed AnalogFPGABoard under test.  Shown are:
 - Completed board with all components plugged into a breadboard for testing.
