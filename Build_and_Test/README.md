@@ -1,5 +1,13 @@
 # Building and Testing the FPGA Analog Board
 
+<img src="images/FPGA_Analog_Board_Testing.jpg" alt="isolated" width="200"/>
+
+Above image shows the completed AnalogFPGABoard under test.  Shown are:
+- Completed board with all components plugged into a breadboard for testing.
+- LED PMOD module to visualize SPI data.
+- Dual multi-turn trim-pots to drive ADC inputs.
+
+
 ## Approach
 
 The board was built and tested in stages.  
