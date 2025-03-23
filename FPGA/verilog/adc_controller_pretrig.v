@@ -40,10 +40,7 @@
 //	.triggered(adc_trig),
 //	//.trigger_en(pmod_nCS & ~pmod_valid), // replace with following line
 // .update_en(pmod_nCS),
-//	.trigger_req(~but),
-//	.trigger_mode(trigger_mode),
-//	.rising_edge(rising_edge),
-//	.falling_edge(falling_edge)
+//	.trigger_req(~but)
 //);
 	
 module adc_controller(
@@ -54,16 +51,8 @@ module adc_controller(
 	output wire done_flag,					// flags buffer full
 	output wire triggered,					// 
 	input wire update_en,					// able to update read-buffer (i.e. swap read and write buffer)
-	input wire trigger_req,					// force trigger if in STATE_WAIT_TRIG - i.e. manual button
-	input wire [2:0] trigger_mode,		// trigger mode
-	input wire rising_edge,					
-	input wire falling_edge
+	input wire trigger_req					// input from trigger module
 );
-
-parameter auto_trigger = 3'd0;
-parameter trigger_rising = 3'd1;
-parameter trigger_falling = 3'd2;
-parameter manual_trigger = 3'd2;
 
 parameter STATE_WAIT_PREBUF = 2'd0;
 parameter STATE_WAIT_TRIG = 2'd1;
@@ -75,54 +64,54 @@ assign mem_en = (sample_counter == sample_divider);
 assign triggered = (state == STATE_WAIT_FILL);
 assign done_flag =  (state == STATE_WAIT_READ) & update_en;
 
-wire trigger_flag;
-assign trigger_flag = 
-	trigger_req | 
-	(trigger_mode == auto_trigger) | 
-	( (trigger_mode == trigger_rising) & rising_edge) |
-	( (trigger_mode == trigger_falling) & falling_edge); 
-
 // State Machine
 reg [1:0] state = STATE_WAIT_PREBUF;
 reg [1:0] next_state;
 
-always @* 
+always @* begin
 	case (state)
 		STATE_WAIT_PREBUF: next_state = (&buf_ctr) ? STATE_WAIT_TRIG : state;
-		STATE_WAIT_TRIG: next_state = (trigger_flag) ? STATE_WAIT_FILL : state;
+		STATE_WAIT_TRIG: next_state = (trigger_req) ? STATE_WAIT_FILL : state;
 		STATE_WAIT_FILL: next_state = (&buf_ctr) ? STATE_WAIT_READ : state;
 		STATE_WAIT_READ: next_state = (update_en) ? STATE_WAIT_PREBUF : state;
 	endcase
+end
 
-always @(posedge clk)
+always @(posedge clk) begin
 	state <= next_state;
+end
 
 // State Buf Counter - counts number sample intervals
 parameter BUF_CTR_ZERO = 10'd0;
 reg [9:0] buf_ctr = BUF_CTR_ZERO;
 reg bank_sel = 1'b0;
 
-always @(posedge clk)
-	if (state == next_state )
+always @(posedge clk) begin
+	if (state == next_state ) begin
 		buf_ctr <= (mem_en) ? buf_ctr + 1'b1 : buf_ctr;
-	else
+	end else begin
 		buf_ctr <= BUF_CTR_ZERO; 
-	
+	end
+end
+
 // Sample Interval Counter
 reg [19:0] sample_counter = 20'd0;
 
-always @(posedge clk)
+always @(posedge clk) begin
 	sample_counter <= (mem_en | (state == STATE_WAIT_READ)) ? 24'd0 : sample_counter + 1'b1;
+end
 	
 // Bank Selection
-always @(posedge clk)
+always @(posedge clk) begin
 	bank_sel <= (update_en & (state == STATE_WAIT_READ)) ? ~bank_sel : bank_sel;
+end
 	
 // Memory Address
 reg [10:0] mem_addr_ctr = 11'd0;
 assign mem_addr = {bank_sel, mem_addr_ctr};
 
-always @(posedge clk)
+always @(posedge clk) begin
 	mem_addr_ctr = (mem_en) ? mem_addr_ctr + 1'b1 : mem_addr_ctr;
+end
 
 endmodule
