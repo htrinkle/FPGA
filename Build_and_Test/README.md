@@ -1,5 +1,13 @@
 # Building and Testing the FPGA Analog Board
 
+<img src="../images/FPGA_Analog_Board_Testing.jpg" width="500"/>
+
+Above image shows the completed AnalogFPGABoard under test.  Shown are:
+- Completed board with all components plugged into a breadboard for testing.
+- LED PMOD module to visualize SPI data.
+- Dual multi-turn trim-pots to drive ADC inputs.
+
+
 ## Approach
 
 The board was built and tested in stages.  
@@ -20,8 +28,9 @@ The board was built and tested in stages.
 | MCU | Populate power LED and resistor (if desired) as this will be impossible after MCU headers installed. Populate any unpopulated resistors near MCU headers.  Populate MCU. Note that MCU USB port is facing into the PCB.  This was done to keep the WiFi antenna at the edge.  (Copper ground planes are also omitted under antenna.) | Test MCU with blink sketch.  Test ability to power board from MCU. | Tested OK | 
 | MCU | None | Verilog SPI implementation with ability to read/write to registers implemented on FPGA. | Tested OK |
 | FPGA PMOD | Solder PMOD connectors. | Display SPI-controlled registers on PMOD.  Verify PMOD matches data sent over SPI.  Use of LED PMOD peripheral helps. | Issue found with FPGA PIN_40. |
+| ADC |Solder ADC and remaining components.  Can omit V_Ref buffer for now.  Everything else should now be populated. | Clock at 100 Msps. Verilog code to capture ADC readings and allow MCU to read via SPI. Further ADC chatarcterization to be done later. | Silk screen polarity for ADCA is inverted.  Offset within specification (ADCA ~10mV, ADCB ~5mV).  ADC works reliably. |
 
-## File Structure
+# File Structure
 
 ./FPGA contains all FPGA related test code.
 
@@ -60,10 +69,29 @@ Following is a list of hardwar errors or things that could be improved.
 
 | Issue | Suggested Improvement | Comment |
 |-|-|-|
-| VCC Power led is sandwitched between two headers.  Need to solder before header installation | Omit LED and current limiting resistor. | LEDs on 3.3V rail and AVDD rail are sufficient. |
+| VCC Power led is sandwitched between two headers.  Need to solder before header installation | Omit LED and current limiting resistor. | LEDs on 3.3V rail and AVDD rail are sufficient. Easy EDA project updated. |
 | R0402 x 4 resistor arrays are hard to hand-solder. | Extend solder pads so that it is easier to get heat from iron onto pad. | R0402 was selected to keep wiring short and lengths approximately matched.  Don't want to upgrade to R0603x4 footprint for that reason. |
-| VUSB to VCC jumper is too close to PMOD header strip | Move slightly toward mounting hole | |
-| DAC buffer op-amp layout includes separate feedback resistor and capacitor, but no capacitor included in non-inverting network. |  Could simply piggy-back capacitor and resistor.  Alternatively, add filter capacitor to non-inverting input. | Prefer to piggy-back as this keeps stray capacitances lowest. |
+| VUSB to VCC jumper is too close to PMOD header strip | Move slightly toward mounting hole | Fixed in Easy EDA project. |
+| DAC buffer op-amp layout includes separate feedback resistor and capacitor, but no capacitor included in non-inverting network. |  Could simply piggy-back capacitor and resistor.  Alternatively, add filter capacitor to non-inverting input. | Prefer to piggy-back as this keeps stray capacitances lowest. Easy EDA project updated.|
 | Buffered ADC ref voltage ouput not that useful. | Ideally want V_offset from DAC buffers.  Then it would be possible to reference ADC inputs against DAC offset.  Removing v_Ref buffer op amp would also free up space to place a VCC breakout pn into the SIL header.  Possibly also I2C lines. |  Not an issue if using AC-coupling.  Also DAC offset is AVDD/2, so can generate in analog shield if needed. |
-| ADC outputs should default to FPGA Inputs. | Set default for unused pins to weak pull-up during development. | Otherwise ADC will drive against GND. |
+| ADC outputs should default to FPGA Inputs. | Set default for unused pins to weak pull-up during development. | Otherwise ADC will drive against GND. Should also consider breaking out PIN_40 for global output enable/disable feature. |
 | PIN_40 seems shorted to PIN_41. Output to PIN_41 was also observed on PIN_40.  It as confirmed that output enable function of PIN_40 was not activated. No PCB faults could be found and this was verified by "lifting" PIN_40 from the solder pad and measuring it in iscolation - still had same output as PIN_41.  Resistance between PIN_40 and PIN_41 measured as ~240 ohm while PIN_40 was lifted. | Not sure why this is occuring.  May be good to break out PIN_40 separately anyway to provide a methoud of disabling all FPGA outputs during software testing anyway. | Hack was to cut trace on PIN_40 and jumper PMOD pin to PIN_9 instead.  PIN_40 was set as input with weak pul-up just in case. Assume faulty FPGA - online purchase. |
+| ADC A label for +/- inputs switched | Update silk-screen. | Fixed in Easy EDA project.|
+
+# ADC Characterization
+
+TODO - deferred till DSO code is ready.  
+
+Note that all testing is with V_common_mode = 1/3 AVDD.
+
+For now its enough to know that board works, analog offset is within 10mV, and analog range is ~ +/1 500mV.  From a design perspective we will aim at +/1 400mV range and leave some head-room.  One ADC bit = 4mV, where input is measured as (V+ - V-).  ADC is configured for differential output with zero (assuming no offset) reading if positive and negative inputs are equal.
+
+## Histogram if ADC reading with V+ = V- (shorted).
+
+## Histogram for input differential of +/- 200mV and 400mV
+
+## Input - Output Transfer Function (-600mV - 600mV)
+
+# Conclusion
+
+This concludes the board build and test activities.  The board is working as designed.  Analog performance is reasonable, given 8 bit architecture.
