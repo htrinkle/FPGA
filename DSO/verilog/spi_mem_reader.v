@@ -1,5 +1,7 @@
 
-module spi_mem_controller(
+module spi_mem_reader#(
+	parameter AW = 12
+)(
 	input wire clk,
 	
    // Control
@@ -9,9 +11,10 @@ module spi_mem_controller(
 	input wire si,
 	input wire reset_flag,
 	output wire so,
+	
 	// Data (to memory module)
 	input wire [15:0] data,
-	output reg [11:0] addr
+	output reg [AW-1:0] addr
 );
 
 reg [3:0] bit_ctr;
@@ -36,7 +39,7 @@ end
 // addr counter
 always @(posedge clk) begin
 	if (reset_flag) begin
-		addr <= 12'd0;
+		addr <= 0;
 	end else if (sel & inc_adr & falling) begin
 		addr <= addr + 1'b1;
 	end else begin

@@ -230,7 +230,7 @@ shift_register #(.N(16)) sr_16_status (
 );
 
 // Sequential memory read
-spi_mem_controller adc_mem_controller(
+spi_mem_reader #(.AW(12)) adc_mem_reader (
 	.clk(clk),
 
     // Control

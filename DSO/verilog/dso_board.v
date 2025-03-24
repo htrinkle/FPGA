@@ -32,13 +32,15 @@ wire [15:0] adc_buf;
 wire [11:0] adc_buf_addr;
 wire [15:0] adc_buf_data;
 
+wire [31:0] adc_cfg, dds_a_cfg, dds_b_cfg;
+
 // MCU Handshake
 assign ready_mcu = 1'b0;
 assign led = 3'b001;
 
 // Internal Wiring
 assign adc_buf = {adc_a_d, adc_b_d};
-assign pmod_a = 8'h55;
+assign pmod_a = adc_cfg[7:0];
 
 // Analog Device Clocks
 assign adc_c_a = pll_clk;
@@ -55,20 +57,25 @@ PLL_100MHz pll_inst(.inclk0(clk), .c0(pll_clk));
 
 // SPI Interface
 spi_module spi_inst(
-	// SPI Interface
 	.clk(clk),
-	.sck(sck_spi),
-	.mosi(mosi_spi),
-	.ncs(ncs_spi),
-	.miso(miso_spi),
 	
-	// Internal Connections
-	.data_in_1({16'hfade, adc_buf}),
-	.mem_data(adc_buf_data),
-	.mem_addr(adc_buf_addr),
+	// SPI Interface
+	.sck_spi(sck_spi),
+	.mosi_spi(mosi_spi),
+	.ncs_spi(ncs_spi),
+	.miso_spi(miso_spi),
+	
+	// Configuration Outouts
 	.q_c(pmod_b),
-	//.q_0(q_0),
-	//.q_1(q_1)
+	.adc_cfg_out(adc_cfg),
+	.dds_a_cfg_out(dds_a_cfg),
+	.dds_b_cfg_out(dds_b_cfg),
+
+	// ADC Buffer Connections
+	.mem_data(adc_buf_data),
+	.mem_addr(adc_buf_addr)
+	
+	// DDS Wave Table Connections
 );
 
 
