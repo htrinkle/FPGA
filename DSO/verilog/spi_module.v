@@ -1,67 +1,123 @@
 module spi_module(
 	input wire clk,
-	input wire sck,
-	input wire mosi,
-	input wire ncs,
-	input wire [31:0] data_in_1,
-	input wire [15:0] mem_data,
-	output wire miso,
+
+	// SPI Interface
+	input wire ncs_spi,
+	input wire sck_spi,
+	input wire mosi_spi,
+	output wire miso_spi,
+	
+	// Configuration Outouts
 	output wire [7:0] q_c,
-	output wire [31:0] q_0,
-	output wire [31:0] q_1,
+	output wire [31:0] adc_cfg_out,
+	output wire [31:0] dds_a_cfg_out,
+	output wire [31:0] dds_b_cfg_out,
+
+	// ADC Buffer Connections
+	input wire [15:0] mem_data,
 	output wire [11:0] mem_addr
+
+	// DDS Wave Table RAM
+	//output wire [7:0] dds_data,
+	//output wire [8:0] dds_addr,
+	//output wire dds_a_tbl_w,
+	//output wire dds_b_tbl_w
 );
 
-localparam Reg0 = 2'd0;
-localparam Reg1 = 2'd1;
-localparam RegM = 2'd2;
+// DeviceID ored with version is writtent to SPI while reading control word.
+// May be used to detect DSO verilog version. 
+localparam DsoDeviceId = 8'h90; 
+localparam DsoDeviceVersion = 8'h01;
 
-// SPI wiring
+localparam AdcCfgAddr = 3'd0;
+localparam AdcBufAddr = 3'd1;
+localparam DDSaCfgAddr = 3'd2;
+localparam DDSbCfgAddr = 3'd3;
+localparam DDSaTblAddr = 3'd4;
+localparam DDSbTblAddr = 3'd5;
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Wiring internal to module
+
+// SPI wiring to Internal SPI Peripherals
 wire mosi_o;
 wire rst;
 wire spi_sck_rising;
 wire spi_sck_falling;
-wire wr;
+wire sel_c, sel_adc_cfg, sel_adc_buf, sel_dds_a_cfg, sel_dds_b_cfg, sel_dds_a_tbl, sel_dds_b_tbl, sel_status;
+wire miso_c, miso_adc_cfg, miso_adc_buf, miso_dds_a_cfg, miso_dds_b_cfg, miso_dds_a_tbl, miso_dds_b_tbl, miso_status;
+wire miso;
 
-wire miso_c, miso_0, miso_1, miso_m;
-wire sel_c, sel_0, sel_1, sel_m;
+// Shift Register Related Wiring
 
-// Control Signals 
-wire [1:0] addr;
+// Command Byte - first byte from MCU to FPGA in any SPI session
+wire [7:0] sr_control_out;
+wire sr_control_done;
+// Signals break-out wwiring
+wire [2:0] addr; 
 wire write_enable;
 
-// Internal Shift Register Wiring
-wire [7:0] sr_control_out;
-wire [31:0] sr_32_0_out;
-wire sr_control_done, sr_32_0_done, sr_32_1_done; 
-wire sr_control_done_strobe, sr_32_0_done_strobe, sr_32_1_done_strobe; 
+// Configuration shift registers
+// Convention: _int denotes internal connection between a shift register and an output buffer register
+
+// ADC Config
+wire [31:0] adc_cfg_int;
+wire sr_32_adc_done_strobe, sr_32_adc_done;
+
+// DDS Config
+wire [31:0] dds_a_cfg_int, dds_b_cfg_int;
+wire sr_32_dds_a_done_strobe, sr_32_dds_b_done_strobe;
+
+// ADC Data - note 16 bit status word is read out before ADC data buffer
+wire sr_16_status_done;
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Assignments Section
 
 // Break out control signals
+assign addr = sr_control_out[2:0];
+assign write_enable = sr_control_out[7];
 
-assign {write_enable, addr} = sr_control_out[2:0];
-assign q_c = sr_control_out;
-// Shift Register Select Lines
+// Address Decoder - Generate SPI Peripheral Select Lines
 assign sel_c = ~sr_control_done;
-assign sel_0 = sr_control_done & (addr == Reg0);
-assign sel_1 = sr_control_done & (addr == Reg1);
-assign sel_m = sr_control_done & (addr == RegM);
+assign sel_adc_cfg = sr_control_done & (addr == AdcCfgAddr);
+assign sel_status = sr_control_done & (addr == AdcBufAddr); // First read 16 bit status
+assign sel_adc_buf = sr_16_status_done;						// then ADC buffer
+assign sel_dds_a_cfg = sr_control_done & (addr == DDSaCfgAddr);
+assign sel_dds_b_cfg = sr_control_done & (addr == DDSbCfgAddr);
+assign sel_dds_a_tbl = sr_control_done & (addr == DDSaTblAddr);
+assign sel_dds_b_tbl = sr_control_done & (addr == DDSbTblAddr);
 
-// MISO Multiplexing
-assign miso = sel_c & miso_c | sel_0 & miso_0 | sel_1 & miso_1 | sel_m & miso_m;
+
+// Muliplex miso signal to based on selected peripheral
+assign miso = 	sel_c 			& miso_c | 
+				sel_adc_cfg 	& miso_adc_cfg | 
+				sel_adc_buf 	& miso_adc_buf | 
+				sel_dds_a_cfg	& miso_dds_a_cfg |
+				sel_dds_b_cfg	& miso_dds_b_cfg |
+				sel_dds_a_tbl	& miso_dds_a_tbl |
+				sel_dds_b_tbl	& miso_dds_b_tbl |
+				sel_status		& miso_status;
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// SPI Internal Modules Instatniation
 
 // SPI SCK sync to internal clock
 spi_sync spi_sync_inst(
-	.clk(clk),
-	.sck(sck),
-	.ncs(ncs),
-	.mosi(mosi),
+	// MCU Interface
+	.clk(clk_spi),
+	.sck(sck_spi),
+	.ncs(ncs_spi),
+	.mosi(mosi_spi),
+
+	// Output to SPI peripherals
 	.mosi_out(mosi_o),
 	.spi_start(rst), 
 	.spi_sck_rising(spi_sck_rising),
 	.spi_sck_falling(spi_sck_falling)
 );
 
-// Shift register for control word
+// Control Byte Shift
 shift_register #(.N(8)) sr_ctrl (
 	.clk(clk),
 
@@ -75,62 +131,112 @@ shift_register #(.N(8)) sr_ctrl (
 	.done(sr_control_done),
 
 	// Data
-	.data_in(sr_control_out),
+	.data_in(DsoDeviceId | DsoDeviceVersion),
 	.data_out(sr_control_out)
 );
 
-// sr_32_0 latches received data into r_32_0 if write flag is set in control word.  
-// output is on q_0
-shift_register #(.N(32)) sr_32_0 (
+// ADC Config (32 bit shift register)
+shift_register #(.N(32)) sr_32_adc (
 	.clk(clk),
 
     // Control
-	.sel(sel_0),
+	.sel(sel_adc_cfg),
 	.si(mosi_o),
-	.so(miso_0),
+	.so(miso_adc_cfg),
 	.falling(spi_sck_falling),
 	.rising(spi_sck_rising),
 	.reset_flag(rst),
-	.done_strobe(sr_32_0_done_strobe),
+	.done_strobe(sr_32_adc_cfg_done_strobe),
 
 	// Data	
-	.data_in(q_0),
-	.data_out(sr_32_0_out)
+	.data_in(adc_cfg_out),
+	.data_out(adc_cfg_int)
 );
 
-register #(.N(32)) r_32_0 (
+register #(.N(32)) r_32_adc (
 	.clk(clk),	
-	.write_enable(write_enable & sr_32_0_done_strobe),	
-	.data_in(sr_32_0_out),	
-	.q(q_0)
+	.write_enable(write_enable & sr_32_adc_cfg_done_strobe),	
+	.data_in(adc_cfg_int),	
+	.q(adc_cfg_out)
 );
 
-// SR 1 latches data_in when transmission starts and sends to receiver
-shift_register #(.N(32)) sr_32_1 (
+// DDS A Config (32 bit shift register)
+shift_register #(.N(32)) sr_32_dds_a (
 	.clk(clk),
 
     // Control
-	.sel(sel_1),
+	.sel(sel_dds_a_cfg),
 	.si(mosi_o),
-	.so(miso_1),
+	.so(miso_dds_a_cfg),
 	.falling(spi_sck_falling),
 	.rising(spi_sck_rising),
 	.reset_flag(rst),
-	.done_strobe(sr_32_1_done_strobe),
+	.done_strobe(sr_32_dds_a_done_strobe),
 
 	// Data	
-	.data_in(data_in_1),
-	.data_out(q_1)
+	.data_in(dds_a_cfg_out),
+	.data_out(dds_a_cfg_int)
+);
+
+register #(.N(32)) r_32_dds_a (
+	.clk(clk),	
+	.write_enable(write_enable & sr_32_dds_a_cfg_done_strobe),	
+	.data_in(dds_a_cfg_int),	
+	.q(dds_a_cfg_out)
+);
+
+// DDS B Config (32 bit shift register)
+shift_register #(.N(32)) sr_32_dds_b (
+	.clk(clk),
+
+    // Control
+	.sel(sel_dds_b_cfg),
+	.si(mosi_o),
+	.so(miso_dds_b_cfg),
+	.falling(spi_sck_falling),
+	.rising(spi_sck_rising),
+	.reset_flag(rst),
+	.done_strobe(sr_32_dds_b_done_strobe),
+
+	// Data	
+	.data_in(dds_b_cfg_out),
+	.data_out(dds_b_cfg_int)
+);
+
+register #(.N(32)) r_32_dds_b (
+	.clk(clk),	
+	.write_enable(write_enable & sr_32_dds_b_cfg_done_strobe),	
+	.data_in(dds_b_cfg_int),	
+	.q(dds_b_cfg_out)
+);
+
+// DDS B Config (32 bit shift register)
+shift_register #(.N(16)) sr_16_status (
+	.clk(clk),
+
+    // Control
+	.sel(sel_status),
+	.si(mosi_o),
+	.so(miso_status),
+	.falling(spi_sck_falling),
+	.rising(spi_sck_rising),
+	.reset_flag(rst),
+	//.done_strobe(),
+	.done(sr_16_status_done),
+
+	// Data	
+	.data_in(16'h1234)
+	//.data_out(dds_b_cfg_out)
 );
 
 // Sequential memory read
-spi_mem_controller mem_cont_inst(
+spi_mem_controller adc_mem_controller(
 	.clk(clk),
 
     // Control
-	.sel(sel_m),
+	.sel(sel_adc_buf),
 	.si(mosi_o),
-	.so(miso_m),
+	.so(miso_adc_buf),
 	.falling(spi_sck_falling),
 	.rising(spi_sck_rising),
 	.reset_flag(rst),
