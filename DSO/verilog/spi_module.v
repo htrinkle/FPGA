@@ -46,7 +46,6 @@ wire spi_sck_rising;
 wire spi_sck_falling;
 wire sel_c, sel_adc_cfg, sel_adc_buf, sel_dds_a_cfg, sel_dds_b_cfg, sel_dds_a_tbl, sel_dds_b_tbl, sel_status;
 wire miso_c, miso_adc_cfg, miso_adc_buf, miso_dds_a_cfg, miso_dds_b_cfg, miso_dds_a_tbl, miso_dds_b_tbl, miso_status;
-wire miso;
 
 // Shift Register Related Wiring
 
@@ -62,11 +61,11 @@ wire write_enable;
 
 // ADC Config
 wire [31:0] adc_cfg_int;
-wire sr_32_adc_done_strobe, sr_32_adc_done;
+wire sr_32_adc_cfg_done_strobe, sr_32_adc_done;
 
 // DDS Config
 wire [31:0] dds_a_cfg_int, dds_b_cfg_int;
-wire sr_32_dds_a_done_strobe, sr_32_dds_b_done_strobe;
+wire sr_32_dds_a_cfg_done_strobe, sr_32_dds_b_cfg_done_strobe;
 
 // ADC Data - note 16 bit status word is read out before ADC data buffer
 wire sr_16_status_done;
@@ -90,14 +89,14 @@ assign sel_dds_b_tbl = sr_control_done & (addr == DDSbTblAddr);
 
 
 // Muliplex miso signal to based on selected peripheral
-assign miso = 	sel_c 			& miso_c | 
-				sel_adc_cfg 	& miso_adc_cfg | 
-				sel_adc_buf 	& miso_adc_buf | 
-				sel_dds_a_cfg	& miso_dds_a_cfg |
-				sel_dds_b_cfg	& miso_dds_b_cfg |
-				sel_dds_a_tbl	& miso_dds_a_tbl |
-				sel_dds_b_tbl	& miso_dds_b_tbl |
-				sel_status		& miso_status;
+assign miso_spi = 	sel_c 			& miso_c | 
+					sel_adc_cfg 	& miso_adc_cfg | 
+					sel_adc_buf 	& miso_adc_buf | 
+					sel_dds_a_cfg	& miso_dds_a_cfg |
+					sel_dds_b_cfg	& miso_dds_b_cfg |
+					sel_dds_a_tbl	& miso_dds_a_tbl |
+					sel_dds_b_tbl	& miso_dds_b_tbl |
+					sel_status		& miso_status;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // SPI Internal Modules Instatniation
@@ -105,7 +104,7 @@ assign miso = 	sel_c 			& miso_c |
 // SPI SCK sync to internal clock
 spi_sync spi_sync_inst(
 	// MCU Interface
-	.clk(clk_spi),
+	.clk(clk),
 	.sck(sck_spi),
 	.ncs(ncs_spi),
 	.mosi(mosi_spi),
@@ -171,7 +170,7 @@ shift_register #(.N(32)) sr_32_dds_a (
 	.falling(spi_sck_falling),
 	.rising(spi_sck_rising),
 	.reset_flag(rst),
-	.done_strobe(sr_32_dds_a_done_strobe),
+	.done_strobe(sr_32_dds_a_cfg_done_strobe),
 
 	// Data	
 	.data_in(dds_a_cfg_out),
@@ -196,7 +195,7 @@ shift_register #(.N(32)) sr_32_dds_b (
 	.falling(spi_sck_falling),
 	.rising(spi_sck_rising),
 	.reset_flag(rst),
-	.done_strobe(sr_32_dds_b_done_strobe),
+	.done_strobe(sr_32_dds_b_cfg_done_strobe),
 
 	// Data	
 	.data_in(dds_b_cfg_out),
