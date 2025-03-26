@@ -1,4 +1,4 @@
-module counter_sr #(
+module counter_sre #(
 	parameter Bits = 8
 )(
 	input wire clk,

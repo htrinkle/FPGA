@@ -3,6 +3,8 @@
 `include "../verilog/shift_register.v"
 `include "../verilog/register.v"
 `include "../verilog/spi_mem_reader.v"
+`include "../verilog/spi_mem_writer.v"
+`include "../verilog/counter_sre.v"
 
 module tb_spi_module();
 
@@ -25,7 +27,8 @@ module tb_spi_module();
   wire [31:0] q_adc, q_dds_a, q_dds_b;
 
   wire [15:0] mem_sim;
-  assign mem_sim[15:12] = 4'hE;
+  wire [11:0] mem_addr;
+  assign mem_sim = {4'hE, mem_addr};
 
   // SPI Module Instantiation
   spi_module dut (
@@ -43,7 +46,7 @@ module tb_spi_module();
 
     // ADC Buffer Connections
     .mem_data(mem_sim),
-    .mem_addr(mem_sim[11:0])
+    .mem_addr(mem_addr)
   );
 
   // Tasks to communicate with module via SPI
@@ -99,7 +102,7 @@ module tb_spi_module();
 
   initial begin 
     $dumpfile("tb_spi_module.vcd");
-    $dumpvars(3, tb_spi_module);
+    $dumpvars(4, tb_spi_module);
 
     #10 $display("init");
     #1 clk = 0;
@@ -116,6 +119,7 @@ module tb_spi_module();
     spi_cfg_write('h00, 'h01234567);
     spi_cfg_write('h02, 'h00112233);
     spi_cfg_write('h03, 'hBABEFDCA);
+    spi_cfg_write('h04, 'hA0A1A2A3);
 
     // MEM Access
     spi_mem_rd(8'h01); // AdcBuf @ 01, read 10 words

@@ -67,6 +67,11 @@ wire sr_32_adc_cfg_done_strobe, sr_32_adc_done;
 wire [31:0] dds_a_cfg_int, dds_b_cfg_int;
 wire sr_32_dds_a_cfg_done_strobe, sr_32_dds_b_cfg_done_strobe;
 
+// DDS Wave Table Wiring
+wire [7:0] dds_a_write_addr;
+wire [7:0] dds_a_write_data;
+wire dds_a_write_strobe;
+
 // ADC Data - note 16 bit status word is read out before ADC data buffer
 wire sr_16_status_done;
 
@@ -81,7 +86,7 @@ assign write_enable = sr_control_out[7];
 assign sel_c = ~sr_control_done;
 assign sel_adc_cfg = sr_control_done & (addr == AdcCfgAddr);
 assign sel_status = sr_control_done & (addr == AdcBufAddr); // First read 16 bit status
-assign sel_adc_buf = sr_16_status_done;						// then ADC buffer
+assign sel_adc_buf = sr_16_status_done & (addr == AdcBufAddr);		// then ADC buffer
 assign sel_dds_a_cfg = sr_control_done & (addr == DDSaCfgAddr);
 assign sel_dds_b_cfg = sr_control_done & (addr == DDSbCfgAddr);
 assign sel_dds_a_tbl = sr_control_done & (addr == DDSaTblAddr);
@@ -243,6 +248,24 @@ spi_mem_reader #(.AW(12)) adc_mem_reader (
 	// Data	
 	.data(mem_data),
 	.addr(mem_addr)
+);
+
+// dds memory writer
+spi_mem_writer #(.AW(8)) dds_a_mem_writer (
+	.clk(clk),
+	
+   // Control
+ 	.reset_flag(rst),  
+   	.sel(sel_dds_a_tbl),
+	.si(mosi_o),
+	.so(miso_dds_a_tbl),
+	.falling(spi_sck_falling),
+	.rising(spi_sck_rising),
+
+	// Data (to memory module)
+	.write_enable_out(dds_a_write_strobe),
+	.data(dds_a_write_data),
+	.addr(dds_a_write_addr)
 );
 
 endmodule
