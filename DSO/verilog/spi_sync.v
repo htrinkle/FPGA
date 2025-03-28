@@ -19,6 +19,8 @@ reg sck_state;
 
 wire next_ncs_state;
 wire next_sck_state;
+wire ncs_not_low;
+wire sck_not_low;
 
 wire ncs_low;
 wire ncs_high;

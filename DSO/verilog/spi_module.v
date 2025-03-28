@@ -1,4 +1,6 @@
-module spi_module(
+module spi_module #(
+	parameter DDS_AW = 9
+)(
 	input wire clk,
 
 	// SPI Interface
@@ -15,19 +17,21 @@ module spi_module(
 
 	// ADC Buffer Connections
 	input wire [15:0] mem_data,
-	output wire [11:0] mem_addr
+	output wire [11:0] mem_addr,
 
 	// DDS Wave Table RAM
-	//output wire [7:0] dds_data,
-	//output wire [8:0] dds_addr,
-	//output wire dds_a_tbl_w,
-	//output wire dds_b_tbl_w
+	output wire [7:0] dds_a_data,
+	output wire [7:0] dds_b_data,
+	output wire [DDS_AW-1:0] dds_a_addr,
+	output wire [DDS_AW-1:0] dds_b_addr,
+	output wire dds_a_w,
+	output wire dds_b_w
 );
 
 // DeviceID ored with version is writtent to SPI while reading control word.
 // May be used to detect DSO verilog version. 
 localparam DsoDeviceId = 8'h90; 
-localparam DsoDeviceVersion = 8'h01;
+localparam DsoDeviceVersion = 8'h1;
 
 localparam AdcCfgAddr = 3'd0;
 localparam AdcBufAddr = 3'd1;
@@ -67,11 +71,6 @@ wire sr_32_adc_cfg_done_strobe, sr_32_adc_done;
 wire [31:0] dds_a_cfg_int, dds_b_cfg_int;
 wire sr_32_dds_a_cfg_done_strobe, sr_32_dds_b_cfg_done_strobe;
 
-// DDS Wave Table Wiring
-wire [7:0] dds_a_write_addr;
-wire [7:0] dds_a_write_data;
-wire dds_a_write_strobe;
-
 // ADC Data - note 16 bit status word is read out before ADC data buffer
 wire sr_16_status_done;
 
@@ -79,6 +78,7 @@ wire sr_16_status_done;
 // Assignments Section
 
 // Break out control signals
+assign q_c = sr_control_out;
 assign addr = sr_control_out[2:0];
 assign write_enable = sr_control_out[7];
 
@@ -251,7 +251,7 @@ spi_mem_reader #(.AW(12)) adc_mem_reader (
 );
 
 // dds memory writer
-spi_mem_writer #(.AW(8)) dds_a_mem_writer (
+spi_mem_writer #(.AW(DDS_AW)) dds_a_mem_writer (
 	.clk(clk),
 	
    // Control
@@ -263,9 +263,26 @@ spi_mem_writer #(.AW(8)) dds_a_mem_writer (
 	.rising(spi_sck_rising),
 
 	// Data (to memory module)
-	.write_enable_out(dds_a_write_strobe),
-	.data(dds_a_write_data),
-	.addr(dds_a_write_addr)
+	.write_enable_out(dds_a_w),
+	.data(dds_a_data),
+	.addr(dds_a_addr)
+);
+
+spi_mem_writer #(.AW(DDS_AW)) dds_b_mem_writer (
+	.clk(clk),
+	
+   // Control
+ 	.reset_flag(rst),  
+   	.sel(sel_dds_b_tbl),
+	.si(mosi_o),
+	.so(miso_dds_b_tbl),
+	.falling(spi_sck_falling),
+	.rising(spi_sck_rising),
+
+	// Data (to memory module)
+	.write_enable_out(dds_b_w),
+	.data(dds_b_data),
+	.addr(dds_b_addr)
 );
 
 endmodule

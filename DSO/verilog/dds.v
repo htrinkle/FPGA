@@ -1,10 +1,10 @@
 module dds #(
-	parameter AW = 8
+	parameter DDS_AW = 8
 )(
 	input wire clk,
 	input wire [31:0] cfg,
 	input wire [7:0] tbl_data,
-	output wire [AW-1:0] tbl_addr,
+	output wire [DDS_AW-1:0] tbl_addr,
 	output wire [7:0] q
 );
 
@@ -12,7 +12,7 @@ module dds #(
 	localparam PhaseAccW = 32;
 
 	// configuration wiring
-	wire [29:0] phace_inc;
+	wire [29:0] phase_inc;
 	wire dds_on;
 	wire dds_inv;
 
@@ -23,8 +23,9 @@ module dds #(
 	reg [7:0] q_buf;
 
 	// Assignments
-	assign tbl_addr = phase[PhaseAccW-1:PhaseAccW-AW];
+	assign tbl_addr = phase[PhaseAccW-1:PhaseAccW-DDS_AW];
 	assign {dds_on, dds_inv, phase_inc} = cfg;
+	assign q = q_buf;
 
 	// Phase accumulator state machine
 	always @(posedge clk) phase <= phase + phase_inc;

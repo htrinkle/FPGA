@@ -45,13 +45,24 @@
 	
 module adc_controller(
 	input wire clk,
+
+	// Configuration - sample rate
 	input wire [19:0] sample_divider,
-	output wire [11:0] mem_addr,			// drives buffer memory and latches buffer offset on done_flag
-	output wire mem_en,						// memory read strobe
-	output wire done_flag,					// flags buffer full
-	output wire triggered,					// 
-	input wire update_en,					// able to update read-buffer (i.e. swap read and write buffer)
-	input wire trigger_req					// input from trigger module
+
+	// Trigger condition is met
+	input wire trigger_req,
+
+	// Should only swap mem banks if SPI is not active - i.e. "Ready" line from SPI_Module is high
+	input wire update_en,
+
+	// Memory Buffer Control - note data path is direct from ADC to Memory
+	output wire [11:0] mem_addr,		// drives buffer memory and latches buffer offset on done_flag
+	output wire mem_en,					// memory read strobe
+
+	// Progress Signals
+	output wire done_flag,				// flags buffer full
+	output wire triggered,				// trigger has occured - e.g. display via LED and/or inform MCU
+	output wire trigger_flag			// used to enable latching of trigger address
 );
 
 parameter STATE_WAIT_PREBUF = 2'd0;
@@ -59,15 +70,33 @@ parameter STATE_WAIT_TRIG = 2'd1;
 parameter STATE_WAIT_FILL = 2'd2;
 parameter STATE_WAIT_READ = 2'd3; // We do not want to update read_buffer while nCS is selected (Active Low)
 
+parameter BUF_CTR_ZERO = 10'd0;
+
 // sample freq = clk freq / (1 + divider)
-assign mem_en = (sample_counter == sample_divider);
-assign triggered = (state == STATE_WAIT_FILL);
-assign done_flag =  (state == STATE_WAIT_READ) & update_en;
 
 // State Machine
 reg [1:0] state = STATE_WAIT_PREBUF;
 reg [1:0] next_state;
 
+// Sample interval counter
+reg [19:0] sample_counter = 20'd0;
+
+// Memory Address Counter
+reg [10:0] mem_addr_ctr = 11'd0;
+reg bank_sel = 1'b0; // assigned to most significant address bit.
+
+// buffer occupancy counter 
+// memory is implemented as circular buffer, so need to count occupancy separately
+reg [9:0] buf_ctr = BUF_CTR_ZERO;
+
+// IO Assignments
+assign mem_addr = {bank_sel, mem_addr_ctr};
+assign mem_en = (sample_counter == sample_divider);
+assign triggered = (state == STATE_WAIT_FILL);
+assign done_flag =  (state == STATE_WAIT_READ) & update_en;
+assign trigger_flag = (next_state == STATE_WAIT_FILL) & (state == STATE_WAIT_TRIG);
+
+// Trigger State Machine
 always @* begin
 	case (state)
 		STATE_WAIT_PREBUF: next_state = (&buf_ctr) ? STATE_WAIT_TRIG : state;
@@ -77,15 +106,9 @@ always @* begin
 	endcase
 end
 
-always @(posedge clk) begin
-	state <= next_state;
-end
+always @(posedge clk) state <= next_state;
 
-// State Buf Counter - counts number sample intervals
-parameter BUF_CTR_ZERO = 10'd0;
-reg [9:0] buf_ctr = BUF_CTR_ZERO;
-reg bank_sel = 1'b0;
-
+// Buffer Occupancy State Machine - reset whenever trigger state changes
 always @(posedge clk) begin
 	if (state == next_state ) begin
 		buf_ctr <= (mem_en) ? buf_ctr + 1'b1 : buf_ctr;
@@ -94,24 +117,13 @@ always @(posedge clk) begin
 	end
 end
 
-// Sample Interval Counter
+// Inter-Sample Interval Counter
 reg [19:0] sample_counter = 20'd0;
 
-always @(posedge clk) begin
-	sample_counter <= (mem_en | (state == STATE_WAIT_READ)) ? 24'd0 : sample_counter + 1'b1;
-end
+always @(posedge clk) sample_counter <= (mem_en | (state == STATE_WAIT_READ)) ? 24'd0 : sample_counter + 1'b1;
 	
-// Bank Selection
-always @(posedge clk) begin
-	bank_sel <= (update_en & (state == STATE_WAIT_READ)) ? ~bank_sel : bank_sel;
-end
-	
-// Memory Address
-reg [10:0] mem_addr_ctr = 11'd0;
-assign mem_addr = {bank_sel, mem_addr_ctr};
-
-always @(posedge clk) begin
-	mem_addr_ctr = (mem_en) ? mem_addr_ctr + 1'b1 : mem_addr_ctr;
-end
+// Memory Addr Statemachine
+always @(posedge clk) bank_sel <= (update_en & (state == STATE_WAIT_READ)) ? ~bank_sel : bank_sel;
+always @(posedge clk) mem_addr_ctr = (mem_en) ? mem_addr_ctr + 1'b1 : mem_addr_ctr;
 
 endmodule

@@ -18,6 +18,8 @@ module spi_mem_writer #(
 	output wire [AW-1:0] addr
 );
 
+wire sr_word_done;
+
 assign write_enable_out = sr_word_done;
 
 // Control Byte Shift

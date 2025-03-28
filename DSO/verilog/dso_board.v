@@ -28,36 +28,57 @@ module dso_board (
 );
 
 wire pll_clk;
-wire [15:0] adc_buf;
+
+// Config Wiring
+wire [31:0] adc_cfg, dds_a_cfg, dds_b_cfg;
+
+// ADC Memory Buffer Wiring
 wire [11:0] adc_buf_addr;
 wire [15:0] adc_buf_data;
 
-wire [31:0] adc_cfg, dds_a_cfg, dds_b_cfg;
+// DDS Wiring
+wire [8:0] dds_a_addr, dds_a_r_addr, dds_b_addr, dds_b_r_addr;
+wire [7:0] dds_a_data, dds_a_r_data, dds_b_data, dds_b_r_data;
+wire [7:0] dds_a_dac_data, dds_b_dac_data;
+wire dds_a_w, dds_b_w;
+
+// ADC and DAC buffering
+reg [15:0] adc_buf;
+reg [7:0] dds_a_buf, dds_b_buf;
+
+////////////////////////////////////////////////////////////////////////////
+// Assignments
 
 // MCU Handshake
 assign ready_mcu = 1'b0;
-assign led = 3'b001;
-
-// Internal Wiring
-assign adc_buf = {adc_a_d, adc_b_d};
-assign pmod_a = adc_cfg[7:0];
 
 // Analog Device Clocks
-assign adc_c_a = pll_clk;
-assign adc_c_b = pll_clk;
-assign dac_c_a = pll_clk;
-assign dac_c_b = pll_clk;
+assign adc_a_c = pll_clk;
+assign adc_b_c = pll_clk;
+assign dac_a_c = pll_clk;
+assign dac_b_c = pll_clk;
 
 // DDS Wiring
-assign dac_a_d = adc_a_d;
-assign dac_b_d = adc_b_d;
+assign dac_a_d = dds_a_buf;
+assign dac_b_d = dds_b_buf;
+
+// ADC
+assign adc_buf_data = adc_buf;
+
+// PMOD, LED, and Buttons
+assign pmod_a = adc_cfg[7:0];
+assign pmod_b = adc_buf[7:0];
+assign led = 3'b001;
+
+////////////////////////////////////////////////////////////
+// Module Instantiations
 
 // PLL
 PLL_100MHz pll_inst(.inclk0(clk), .c0(pll_clk));
 
 // SPI Interface
-spi_module spi_inst(
-	.clk(clk),
+spi_module #(.DDS_AW(9)) spi_inst(
+	.clk(pll_clk),
 	
 	// SPI Interface
 	.sck_spi(sck_spi),
@@ -66,35 +87,70 @@ spi_module spi_inst(
 	.miso_spi(miso_spi),
 	
 	// Configuration Outouts
-	.q_c(pmod_b),
+	//.q_c(pmod_b),
 	.adc_cfg_out(adc_cfg),
 	.dds_a_cfg_out(dds_a_cfg),
 	.dds_b_cfg_out(dds_b_cfg),
 
 	// ADC Buffer Connections
 	.mem_data(adc_buf_data),
-	.mem_addr(adc_buf_addr)
+	.mem_addr(adc_buf_addr),
 	
 	// DDS Wave Table Connections
+   .dds_a_data(dds_a_data),
+	.dds_b_data(dds_b_data),
+	.dds_a_addr(dds_a_addr),
+   .dds_b_addr(dds_b_addr),
+   .dds_a_w(dds_a_w),
+	.dds_b_w(dds_b_w)
 );
 
+// DDS_A wave-table memory
+ram_dds ram_dds_a (
+	.clock(pll_clk),
+	.data(dds_a_data),
+	.wraddress(dds_a_addr),
+	.wren(dds_a_w),
+	.rdaddress(dds_a_r_addr),
+	.q(dds_a_r_data)
+);
 
+// DDS_B wave-table memory
+ram_dds ram_dds_b (
+	.clock(pll_clk),
+	.data(dds_b_data),
+	.wraddress(dds_b_addr),
+	.wren(dds_b_w),
+	.rdaddress(dds_b_r_addr),
+	.q(dds_b_r_data)
+);
 
-/////////////////////////////////////////////////////
-// Analog IO Buffer Management
+// DDS_A phase accumulator and controller
+dds #(.DDS_AW(9)) dds_a (
+	.clk(pll_clk),
+	.cfg(dds_a_cfg),
+	.tbl_data(dds_a_r_data),
+	.tbl_addr(dds_a_r_addr),
+	.q(dds_a_dac_data)
+);
 
-// ADC Buffer
-//register #(.N(16)) adc_buf(
-//	.clk(clk),
-//	.write_enable(1'b1),
-//	.data_in({adc_a_d, adc_b_d}),
-//	.q(adc_data)
-//);
+// DDS_B phase accumulator and controller
+dds #(.DDS_AW(9)) dds_b (
+	.clk(pll_clk),
+	.cfg(dds_b_cfg),
+	.tbl_data(dds_b_r_data),
+	.tbl_addr(dds_b_r_addr),
+	.q(dds_b_dac_data)
+);
+
+///////////////////////////////////////
+// Analog I/O Buffering
 
 // DDS Output Buffer
-//always @(negedge pll_clk)
-//begin
-//    {buf1, buf0} = {~buf0, ramp};
-//end
+
+always @(negedge pll_clk) {dds_a_buf, dds_b_buf} <= {dds_a_dac_data, dds_b_dac_data};
+
+// ADC Input Buffer
+always @(posedge pll_clk) adc_buf <= {adc_a_d, adc_b_d};
 
 endmodule

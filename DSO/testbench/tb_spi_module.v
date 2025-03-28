@@ -28,10 +28,18 @@ module tb_spi_module();
 
   wire [15:0] mem_sim;
   wire [11:0] mem_addr;
+
+	wire [7:0] dds_a_data;
+	wire [7:0] dds_b_data;
+	wire [8:0] dds_a_addr;
+	wire [8:0] dds_b_addr;
+	wire dds_a_w;
+	wire dds_b_w;
+
   assign mem_sim = {4'hE, mem_addr};
 
   // SPI Module Instantiation
-  spi_module dut (
+  spi_module #(.DDS_AW(9)) dut(
     .clk(clk),
 
     .sck_spi(sck),
@@ -46,7 +54,15 @@ module tb_spi_module();
 
     // ADC Buffer Connections
     .mem_data(mem_sim),
-    .mem_addr(mem_addr)
+    .mem_addr(mem_addr),
+
+    // DDS Wave Table RAM
+    .dds_a_data(dds_a_data),
+	  .dds_b_data(dds_b_data),
+	  .dds_a_addr(dds_a_addr),
+    .dds_b_addr(dds_a_addr),
+    .dds_a_w(dds_a_w),
+	  .dds_b_w(dds_b_w)
   );
 
   // Tasks to communicate with module via SPI
