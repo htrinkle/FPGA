@@ -17,7 +17,7 @@ module spi_module #(
 
 	// ADC Buffer Connections
 	input wire [15:0] mem_data,
-	output wire [11:0] mem_addr,
+	output wire [10:0] mem_addr,
 
 	// DDS Wave Table RAM
 	output wire [7:0] dds_a_data,
@@ -25,7 +25,10 @@ module spi_module #(
 	output wire [DDS_AW-1:0] dds_a_addr,
 	output wire [DDS_AW-1:0] dds_b_addr,
 	output wire dds_a_w,
-	output wire dds_b_w
+	output wire dds_b_w,
+	
+	// Module Status
+	output wire spi_busy
 );
 
 // DeviceID ored with version is writtent to SPI while reading control word.
@@ -118,7 +121,10 @@ spi_sync spi_sync_inst(
 	.mosi_out(mosi_o),
 	.spi_start(rst), 
 	.spi_sck_rising(spi_sck_rising),
-	.spi_sck_falling(spi_sck_falling)
+	.spi_sck_falling(spi_sck_falling),
+	
+	// SPI Status
+	.spi_busy(spi_busy)
 );
 
 // Control Byte Shift
@@ -234,7 +240,7 @@ shift_register #(.N(16)) sr_16_status (
 );
 
 // Sequential memory read
-spi_mem_reader #(.AW(12)) adc_mem_reader (
+spi_mem_reader #(.AW(11)) adc_mem_reader (
 	.clk(clk),
 
     // Control

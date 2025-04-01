@@ -43,7 +43,7 @@
 //	.trigger_req(~but)
 //);
 	
-module adc_controller(
+module adc_controller_pretrig(
 	input wire clk,
 
 	// Configuration - sample rate
@@ -57,11 +57,11 @@ module adc_controller(
 
 	// Memory Buffer Control - note data path is direct from ADC to Memory
 	output wire [11:0] mem_addr,		// drives buffer memory and latches buffer offset on done_flag
-	output wire mem_en,					// memory read strobe
+	output wire mem_en,					// memory write strobe
 
 	// Progress Signals
+	output wire [2:0] trigger_state,
 	output wire done_flag,				// flags buffer full
-	output wire triggered,				// trigger has occured - e.g. display via LED and/or inform MCU
 	output wire trigger_flag			// used to enable latching of trigger address
 );
 
@@ -92,9 +92,11 @@ reg [9:0] buf_ctr = BUF_CTR_ZERO;
 // IO Assignments
 assign mem_addr = {bank_sel, mem_addr_ctr};
 assign mem_en = (sample_counter == sample_divider);
-assign triggered = (state == STATE_WAIT_FILL);
 assign done_flag =  (state == STATE_WAIT_READ) & update_en;
 assign trigger_flag = (next_state == STATE_WAIT_FILL) & (state == STATE_WAIT_TRIG);
+assign trigger_state = {	state == STATE_WAIT_READ, 
+									state == STATE_WAIT_FILL, 
+									state == STATE_WAIT_TRIG};
 
 // Trigger State Machine
 always @* begin
@@ -117,9 +119,7 @@ always @(posedge clk) begin
 	end
 end
 
-// Inter-Sample Interval Counter
-reg [19:0] sample_counter = 20'd0;
-
+// Sample Counter
 always @(posedge clk) sample_counter <= (mem_en | (state == STATE_WAIT_READ)) ? 24'd0 : sample_counter + 1'b1;
 	
 // Memory Addr Statemachine
