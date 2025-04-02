@@ -4,7 +4,7 @@ module spi_mem_reader#(
 )(
 	input wire clk,
 	
-   // Control
+	// SPI
 	input wire sel, //implies shift on posedge clk
 	input wire rising,
 	input wire falling,
