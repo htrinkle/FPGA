@@ -90,8 +90,8 @@ module adc_driver #(
 	// Sample Counter - resets onchange of state
 	counter_sre #(.Bits(DEPTH)) sample_ctr(.clk(clk), .en(sample_flag), .sync_reset(next_state != state), .q(sample_q));
 
-	// Memory Addr Statemachine
-	counter_sre #(.Bits(DEPTH)) addr_ctr(.clk(clk), .en(sample_flag), .sync_reset(next_state != state), .q(mem_addr_ctr_q));
+	// Memory Addr Counter
+	counter_sre #(.Bits(DEPTH)) addr_ctr(.clk(clk), .en(sample_flag), .sync_reset(1'b0), .q(mem_addr_ctr_q));
 	always @(posedge clk) bank_sel <= (buf_update_flag) ? ~bank_sel : bank_sel;
 
 	// Trigger Capture - captures bank and address of trigger event
