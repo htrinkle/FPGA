@@ -17,6 +17,7 @@ module spi_module #(
 
 	// ADC Buffer Connections
 	input wire [15:0] mem_data,
+	input wire [11:0] trig_addr,
 	output wire [10:0] mem_addr,
 
 	// DDS Wave Table RAM
@@ -235,7 +236,7 @@ shift_register #(.N(16)) sr_16_status (
 	.done(sr_16_status_done),
 
 	// Data	
-	.data_in(16'h1234)
+	.data_in({4'hC,trig_addr})
 	//.data_out(dds_b_cfg_out)
 );
 
