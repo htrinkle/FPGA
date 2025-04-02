@@ -85,35 +85,35 @@ PLL_100MHz pll_inst(.inclk0(clk), .c0(pll_clk));
 
 // SPI Interface
 spi_module #(.DDS_AW(9)) spi_inst(
-	.clk(pll_clk),
+  .clk(pll_clk),
 	
-	// SPI Interface
-	.sck_spi(sck_spi),
-	.mosi_spi(mosi_spi),
-	.ncs_spi(ncs_spi),
-	.miso_spi(miso_spi),
+  // SPI Interface
+  .sck_spi(sck_spi),
+  .mosi_spi(mosi_spi),
+  .ncs_spi(ncs_spi),
+  .miso_spi(miso_spi),
 	
-	// Configuration Outouts
-	//.q_c(pmod_b),
-	.adc_cfg_out(adc_cfg),
-	.dds_a_cfg_out(dds_a_cfg),
-	.dds_b_cfg_out(dds_b_cfg),
+  // Configuration Outouts
+  //.q_c(pmod_b),
+  .adc_cfg_out(adc_cfg),
+  .dds_a_cfg_out(dds_a_cfg),
+  .dds_b_cfg_out(dds_b_cfg),
 
-	// ADC Buffer Connections
-	.mem_data(adc_buf_data),
-	.mem_addr(adc_buf_r_addr),
-	.trig_addr(trig_addr),
+  // ADC Buffer Connections
+ .mem_data(adc_buf_data),
+ .mem_addr(adc_buf_r_addr),
+ .trig_addr(trig_addr),
 	
-	// DDS Wave Table Connections
-   .dds_a_data(dds_a_data),
-	.dds_b_data(dds_b_data),
-	.dds_a_addr(dds_a_addr),
-   .dds_b_addr(dds_b_addr),
-   .dds_a_w(dds_a_w),
-	.dds_b_w(dds_b_w),
+  // DDS Wave Table Connections
+  .dds_a_data(dds_a_data),
+  .dds_b_data(dds_b_data),
+  .dds_a_addr(dds_a_addr),
+  .dds_b_addr(dds_b_addr),
+  .dds_a_w(dds_a_w),
+  .dds_b_w(dds_b_w),
 	
-	// SPI Status
-	.spi_busy(spi_busy)
+  // SPI Status
+  .spi_busy(spi_busy)
 );
 
 //////////////////////////////////////////////////////////////////////////
@@ -172,8 +172,8 @@ ram_adc ram_adc (
 
 adc_driver #(.DEPTH(BUF_DEPTH), .DEL_W(24)) adc_driver_inst(
 	.clk(pll_clk),
-
-   // configuration and control inputs
+	
+	// configuration and control inputs
 	.sample_divider(adc_cfg[23:0]),	// Configuration - sample rate
 	.mode(2'd0),
 	.trigger_req(~button),  // Trigger condition is met
