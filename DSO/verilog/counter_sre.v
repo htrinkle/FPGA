@@ -4,7 +4,7 @@ module counter_sre #(
 	input wire clk,
 	input wire en,
 	input wire sync_reset,
-	output reg [Bits-1:0] q,
+	output reg [Bits-1:0] q = 0,
 	output wire carry
 );
 
