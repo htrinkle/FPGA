@@ -54,13 +54,14 @@ module adc_driver #(
 
 	// Trigger
 	wire trigger_flag;
-	wire trigger_req_internal = trigger_req | 
-								(mode == MODE_IMMEDIATE) |
-								((mode == MODE_AUTO & half_buffer_sampled));
+	wire trigger_req_internal; 
 
 	// Signal Assignments
 	assign sample_flag = sample_divider_q == sample_divider;
 	assign buf_update_flag = ready & valid;
+	assign trigger_req_internal = trigger_req;// | 
+							//	(mode == MODE_IMMEDIATE) |
+							//	((mode == MODE_AUTO & half_buffer_sampled));
 
 	// IO Assignments
 	assign mem_addr = {bank_sel, mem_addr_ctr_q};

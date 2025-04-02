@@ -102,6 +102,7 @@ spi_module #(.DDS_AW(9)) spi_inst(
 	// ADC Buffer Connections
 	.mem_data(adc_buf_data),
 	.mem_addr(adc_buf_r_addr),
+	.trig_addr(trig_addr),
 	
 	// DDS Wave Table Connections
    .dds_a_data(dds_a_data),

@@ -232,11 +232,10 @@ shift_register #(.N(16)) sr_16_status (
 	.falling(spi_sck_falling),
 	.rising(spi_sck_rising),
 	.reset_flag(rst),
-	//.done_strobe(),
 	.done(sr_16_status_done),
 
 	// Data	
-	.data_in({4'hC,trig_addr})
+	.data_in({4'h5,trig_addr})
 	//.data_out(dds_b_cfg_out)
 );
 

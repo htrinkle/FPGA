@@ -19,20 +19,20 @@ module tb_adc_driver();
   wire trig_wait;
 
   adc_driver #(.DEPTH(BUF_DEPTH), .DEL_W(24)) adc_driver_inst(
-	.clk(clk),
+	  .clk(clk),
     .sample_divider(24'd1),
     .mode(2'd0),
-	.trigger_req(trig_req),
+	  .trigger_req(trig_req),
     .ready(ready),
     .valid(valid),
-	.mem_addr(mem_addr),		// drives buffer memory and latches buffer offset on done_flag
-	.mem_en(mem_en),					// memory write strobe
-	.trig_addr(trig_addr),		// trigger address to be used by SPI_Module
+	  .mem_addr(mem_addr),		// drives buffer memory and latches buffer offset on done_flag
+	  .mem_en(mem_en),					// memory write strobe
+	  .trig_addr(trig_addr),		// trigger address to be used by SPI_Module
 
-	// Status
-	.waiting_for_trigger(trig_wait),
-	.triggered(trig_occured)
-);
+	  // Status
+	  .waiting_for_trigger(trig_wait),
+	  .triggered(trig_occured)
+  );
 
   initial begin 
     $dumpfile("tb_adc_driver.vcd");
