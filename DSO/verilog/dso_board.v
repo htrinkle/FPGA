@@ -27,6 +27,8 @@ module dso_board (
 	output wire [7:0] pmod_b
 );
 
+parameter BUF_DEPTH = 11;
+
 //////////////////////////////////////////////////////////////////////////
 // wires and register
 
@@ -39,7 +41,8 @@ wire spi_busy;
 wire [31:0] adc_cfg, dds_a_cfg, dds_b_cfg;
 
 // ADC Memory Buffer Wiring
-wire [11:0] adc_buf_addr, adc_buf_w_addr, trig_addr;
+wire [BUF_DEPTH:0] adc_buf_w_addr, trig_addr;
+wire [BUF_DEPTH-1:0] adc_buf_r_addr;
 wire [15:0] adc_buf_data;
 wire adc_buf_wen;
 wire trigger_flag;
@@ -98,7 +101,7 @@ spi_module #(.DDS_AW(9)) spi_inst(
 
 	// ADC Buffer Connections
 	.mem_data(adc_buf_data),
-	.mem_addr(adc_buf_addr),
+	.mem_addr(adc_buf_r_addr),
 	
 	// DDS Wave Table Connections
    .dds_a_data(dds_a_data),
@@ -162,35 +165,30 @@ ram_adc ram_adc (
 	.data(adc_buf),
 	.wraddress(adc_buf_w_addr),
 	.wren(adc_buf_wen),
-	.rdaddress(adc_buf_addr),
+	.rdaddress({trig_addr[BUF_DEPTH], adc_buf_r_addr}),
 	.q(adc_buf_data)
 );
 
-adc_controller_pretrig adc_controller_inst(
+adc_driver #(.DEPTH(BUF_DEPTH), .DEL_W(24)) adc_driver_inst(
 	.clk(pll_clk),
 
    // configuration and control inputs
-	.sample_divider(adc_cfg[19:0]),	// Configuration - sample rate
+	.sample_divider(adc_cfg[23:0]),	// Configuration - sample rate
+	.mode(2'd0),
 	.trigger_req(~button),  // Trigger condition is met
-	.update_en(~spi_busy), // Should only swap mem banks if SPI is not active
+	.ready(~spi_busy), // Should only swap mem banks if SPI is not active
+	.valid(led[0]),
 
 	// Memory Buffer Interface - NOTE data path is direct from ADC to Memory
 	.mem_addr(adc_buf_w_addr),		// drives buffer memory and latches buffer offset on done_flag
 	.mem_en(adc_buf_wen),			// memory write strobe
-
+	.trig_addr(trig_addr),
+	
 	// Progress Signals
-	.trigger_state(led)
-	//.done_flag(),					// flags buffer full - e.g. latch "data available" line to MCU
-	.trigger_flag(trigger_flag)	// used to enable latching of trigger address
+	.waiting_for_trigger(led[1]),
+	.triggered(led[2])
 );
 
-// On trigger, latch addr
-register #(.N(12)) trig_addr(
-	.clk(pll_clk),
-	.write_enable(trigger_flag),
-	.data_in(adc_buf_w_addr),
-	.q(trig_addr)
-);
 
 //////////////////////////////////////////////////////////////////////////
 // Analog I/O Buffering

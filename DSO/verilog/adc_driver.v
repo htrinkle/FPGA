@@ -25,14 +25,14 @@ module adc_driver #(
 	output wire triggered
 );
 
-	parameter STATE_WAIT_PREBUF = 2'd0;
-	parameter STATE_WAIT_TRIG = 2'd1;
-	parameter STATE_WAIT_FILL = 2'd2;
-	parameter STATE_WAIT_READ = 2'd3; // We do not want to update read_buffer while nCS is selected (Active Low)
+	localparam STATE_WAIT_PREBUF = 2'd0;
+	localparam STATE_WAIT_TRIG = 2'd1;
+	localparam STATE_WAIT_FILL = 2'd2;
+	localparam STATE_WAIT_READ = 2'd3; // We do not want to update read_buffer while nCS is selected (Active Low)
 
-	parameter MODE_NORM = 0;
-	parameter MODE_AUTO = 1;
-	parameter MODE_IMMEDIATE = 2;
+	localparam MODE_NORM = 0;
+	localparam MODE_AUTO = 1;
+	localparam MODE_IMMEDIATE = 2;
 
 	// State Machine
 	reg [1:0] state = STATE_WAIT_PREBUF;
@@ -44,7 +44,6 @@ module adc_driver #(
 	wire buf_update_flag;  // When set, bank_sel will toggle and read has occured
 	reg bank_sel = 1'b0;   // assigned to most significant address bit.
 
-
 	// Sampling Interval Divider
 	wire [DEL_W-1:0] sample_divider_q;
 	wire sample_flag;
@@ -54,6 +53,7 @@ module adc_driver #(
 	wire half_buffer_sampled = sample_q[DEPTH-1];
 
 	// Trigger
+	wire trigger_flag;
 	wire trigger_req_internal = trigger_req | 
 								(mode == MODE_IMMEDIATE) |
 								((mode == MODE_AUTO & half_buffer_sampled));
@@ -66,9 +66,9 @@ module adc_driver #(
 	assign mem_addr = {bank_sel, mem_addr_ctr_q};
 	assign mem_en = sample_flag;
 	assign valid = (state == STATE_WAIT_READ);
-	assign done_flag =  ready & valid;
 	assign waiting_for_trigger = (state == STATE_WAIT_TRIG);
 	assign trigger_flag = (next_state == STATE_WAIT_FILL) & waiting_for_trigger;
+	assign triggered = (state == STATE_WAIT_FILL);
 
 
 	// Trigger State Machine
