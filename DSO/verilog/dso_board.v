@@ -26,6 +26,66 @@ module dso_board (
 	output wire [7:0] pmod_a,
 	output wire [7:0] pmod_b
 );
+
+parameter BUF_DEPTH = 11;
+
+//////////////////////////////////////////////////////////////////////////
+// wires and register
+
+wire pll_clk;
+
+// SPI Wiring
+wire spi_busy;
+
+// Config Wiring
+wire [31:0] adc_cfg, dds_a_cfg, dds_b_cfg;
+
+// ADC Memory Buffer Wiring
+wire [BUF_DEPTH:0] adc_buf_w_addr, trig_addr;
+wire [BUF_DEPTH-1:0] adc_buf_r_addr;
+wire [15:0] adc_buf_data;
+wire adc_buf_wen;
+wire trigger_flag;
+
+// DDS Wiring
+wire [8:0] dds_a_addr, dds_a_r_addr, dds_b_addr, dds_b_r_addr;
+wire [7:0] dds_a_data, dds_a_r_data, dds_b_data, dds_b_r_data;
+wire [7:0] dds_a_dac_data, dds_b_dac_data;
+wire dds_a_w, dds_b_w;
+
+// ADC and DAC buffering
+reg [15:0] adc_buf;
+reg [7:0] dds_a_buf, dds_b_buf;
+
+//////////////////////////////////////////////////////////////////////////
+// Assignments
+
+// MCU Handshake
+assign ready_mcu = led[0];
+
+// Analog Device Clocks
+assign adc_a_c = pll_clk;
+assign adc_b_c = pll_clk;
+assign dac_a_c = pll_clk;
+assign dac_b_c = pll_clk;
+
+// DDS Wiring
+assign dac_a_d = dds_a_buf;
+assign dac_b_d = dds_b_buf;
+
+// PMOD, LED, and Buttons
+assign pmod_a = adc_cfg[7:0];
+assign pmod_b = adc_buf[7:0];
+
+//////////////////////////////////////////////////////////////////////////
+// Module Instantiations
+
+// PLL
+PLL_100MHz pll_inst(.inclk0(clk), .c0(pll_clk));
+
+// SPI Interface
+spi_module #(.DDS_AW(9)) spi_inst(
+	.clk(pll_clk),
 	
 	parameter BUF_DEPTH = 11;
 	
