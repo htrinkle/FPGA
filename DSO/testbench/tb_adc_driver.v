@@ -13,7 +13,7 @@ module tb_adc_driver();
   reg clk = 1'b0;
 
   wire valid;
-  wire [BUF_DEPTH:0] mem_addr, trig_addr;
+  wire [BUF_DEPTH-1:0] mem_addr, trig_addr;
   wire mem_en;
   wire trig_occured;
   wire trig_wait;
