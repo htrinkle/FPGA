@@ -49,6 +49,7 @@ module dso_board (
 	wire trigger_wait, trigger_seen, adc_buf_full;
 	reg  adc_data_available = 0;
 	wire bank_sel;
+	wire [1:0] adc_trig_state;
 	
 	// DDS Wiring
 	wire [8:0] dds_a_addr, dds_a_r_addr, dds_b_addr, dds_b_r_addr;
@@ -64,7 +65,8 @@ module dso_board (
 	// Assignments
 	
 	// MCU Handshake
-	assign led = ~{trigger_wait, trigger_seen, adc_buf_full};
+	//assign led = ~{trigger_wait, trigger_seen, adc_buf_full};
+	assign led = ~{adc_data_available, adc_trig_state};
 	assign ready_mcu = adc_data_available;
 		
 	// Analog Device Clocks
@@ -85,7 +87,7 @@ module dso_board (
 	// adc_data_available state machine
 
 	always @(posedge clk) begin
-		if (adc_data_Available & ~spi_busy) begin
+		if (adc_buf_full & ~spi_busy) begin
 			adc_data_available <= 1'b1;
 		end else if (spi_busy) begin // TODO: should get a "clear" signal from 
 			adc_data_available <= 1'b0; 
@@ -204,6 +206,7 @@ module dso_board (
 		.bank_sel(bank_sel),
 		
 		// Progress Signals
+		.trigger_state(adc_trig_state),
 		.waiting_for_trigger(trigger_wait),
 		.triggered(trigger_seen)
 	);

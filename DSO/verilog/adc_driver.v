@@ -22,6 +22,7 @@ module adc_driver #(
 	output reg bank_sel = 1'b0, 
 
 	// Status
+	output wire [1:0] trigger_state,
 	output wire waiting_for_trigger,
 	output wire triggered
 );
@@ -70,6 +71,7 @@ module adc_driver #(
 	assign waiting_for_trigger = (state == STATE_WAIT_TRIG);
 	assign trigger_flag = (next_state == STATE_WAIT_FILL) & waiting_for_trigger;
 	assign triggered = (state == STATE_WAIT_FILL);
+	assign trigger_state = state;
 
 	// Trigger State Machine
 	always @* begin
