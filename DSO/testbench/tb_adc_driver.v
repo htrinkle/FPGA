@@ -5,7 +5,7 @@
 
 module tb_adc_driver();
 
-  parameter BUF_DEPTH = 4;
+  parameter BUF_DEPTH = 6;
 
   reg [15:0] adc_buf = 16'h0106;  
   reg trig_req = 1'b0;
@@ -44,7 +44,7 @@ module tb_adc_driver();
     #10
 
 
-    #2000
+    #6000
 
     #200 $finish;
   end

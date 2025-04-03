@@ -61,7 +61,7 @@ reg [7:0] dds_a_buf, dds_b_buf;
 // Assignments
 
 // MCU Handshake
-assign ready_mcu = led[2];
+assign ready_mcu = led[0];
 
 // Analog Device Clocks
 assign adc_a_c = pll_clk;

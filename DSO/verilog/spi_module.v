@@ -235,8 +235,8 @@ shift_register #(.N(16)) sr_16_status (
 	.done(sr_16_status_done),
 
 	// Data	
-	.data_in({4'h5,trig_addr})
-	//.data_out(dds_b_cfg_out)
+	//.data_in({4'h5,trig_addr})
+	.data_in(16'hABCD)
 );
 
 // Sequential memory read
