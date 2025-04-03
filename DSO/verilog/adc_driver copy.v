@@ -16,10 +16,9 @@ module adc_driver #(
 	output wire valid,  // adc data is valid
 
 	// Memory Buffer Control - note data path is direct from ADC to Memory
-	output wire [DEPTH-1:0] mem_addr,		// drives buffer memory and latches buffer offset on done_flag
+	output wire [DEPTH:0] mem_addr,		// drives buffer memory and latches buffer offset on done_flag
 	output wire mem_en,					// memory write strobe
-	output wire [DEPTH-1:0] trig_addr,		// trigger address to be used by SPI_Module
-	output reg bank_sel = 1'b0, 
+	output wire [DEPTH:0] trig_addr,		// trigger address to be used by SPI_Module
 
 	// Status
 	output wire waiting_for_trigger,
@@ -41,8 +40,9 @@ module adc_driver #(
 
 	// Memory Address Counter
 	wire [DEPTH-1:0] mem_addr_ctr_q;
-	wire [DEPTH-1:0] trig_addr_q;  // Note this includes bank_sel as msb
+	wire [DEPTH:0] trig_addr_q;  // Note this includes bank_sel as msb
 	wire buf_update_flag;  // When set, bank_sel will toggle and read has occured
+	reg bank_sel = 1'b0;   // assigned to most significant address bit.
 
 	// Sampling Interval Divider
 	wire [DEL_W-1:0] sample_divider_q;
@@ -64,12 +64,13 @@ module adc_driver #(
 							//	((mode == MODE_AUTO & half_buffer_sampled));
 
 	// IO Assignments
-	assign mem_addr = mem_addr_ctr_q;
+	assign mem_addr = {bank_sel, mem_addr_ctr_q};
 	assign mem_en = sample_flag;
 	assign valid = (state == STATE_WAIT_READ);
 	assign waiting_for_trigger = (state == STATE_WAIT_TRIG);
 	assign trigger_flag = (next_state == STATE_WAIT_FILL) & waiting_for_trigger;
 	assign triggered = (state == STATE_WAIT_FILL);
+
 
 	// Trigger State Machine
 	always @* begin
@@ -94,12 +95,12 @@ module adc_driver #(
 	always @(posedge clk) bank_sel <= (buf_update_flag) ? ~bank_sel : bank_sel;
 
 	// Trigger Capture - captures bank and address of trigger event
-	register #(.N(DEPTH)) trig_add_reg(.clk(clk), .write_enable(trigger_flag), .data_in(mem_addr), .q(trig_addr_q));
+	register #(.N(DEPTH+1)) trig_add_reg(.clk(clk), .write_enable(trigger_flag), .data_in(mem_addr), .q(trig_addr_q));
 
 	// Trigger Buffer - Persist Trigger {bank, addr} for use by consumer while acquisition continues on alternative bank
 	// Consumer should treat:
 	//		 trig_addr[DEPTH-1] as bank select signal
 	//		 trig_addr[DEPTH-2:0] as the actual address out of [DEPTH-2:0] circular buffer at which trigger happened.
-	register #(.N(DEPTH)) trig_buf_reg(.clk(clk), .write_enable(buf_update_flag), .data_in(trig_addr_q), .q(trig_addr));
+	register #(.N(DEPTH+1)) trig_buf_reg(.clk(clk), .write_enable(buf_update_flag), .data_in(trig_addr_q), .q(trig_addr));
 
 endmodule

@@ -27,66 +27,6 @@ module dso_board (
 	output wire [7:0] pmod_b
 );
 
-parameter BUF_DEPTH = 11;
-
-//////////////////////////////////////////////////////////////////////////
-// wires and register
-
-wire pll_clk;
-
-// SPI Wiring
-wire spi_busy;
-
-// Config Wiring
-wire [31:0] adc_cfg, dds_a_cfg, dds_b_cfg;
-
-// ADC Memory Buffer Wiring
-wire [BUF_DEPTH:0] adc_buf_w_addr, trig_addr;
-wire [BUF_DEPTH-1:0] adc_buf_r_addr;
-wire [15:0] adc_buf_data;
-wire adc_buf_wen;
-wire trigger_flag;
-
-// DDS Wiring
-wire [8:0] dds_a_addr, dds_a_r_addr, dds_b_addr, dds_b_r_addr;
-wire [7:0] dds_a_data, dds_a_r_data, dds_b_data, dds_b_r_data;
-wire [7:0] dds_a_dac_data, dds_b_dac_data;
-wire dds_a_w, dds_b_w;
-
-// ADC and DAC buffering
-reg [15:0] adc_buf;
-reg [7:0] dds_a_buf, dds_b_buf;
-
-//////////////////////////////////////////////////////////////////////////
-// Assignments
-
-// MCU Handshake
-assign ready_mcu = led[0];
-
-// Analog Device Clocks
-assign adc_a_c = pll_clk;
-assign adc_b_c = pll_clk;
-assign dac_a_c = pll_clk;
-assign dac_b_c = pll_clk;
-
-// DDS Wiring
-assign dac_a_d = dds_a_buf;
-assign dac_b_d = dds_b_buf;
-
-// PMOD, LED, and Buttons
-assign pmod_a = adc_cfg[7:0];
-assign pmod_b = adc_buf[7:0];
-
-//////////////////////////////////////////////////////////////////////////
-// Module Instantiations
-
-// PLL
-PLL_100MHz pll_inst(.inclk0(clk), .c0(pll_clk));
-
-// SPI Interface
-spi_module #(.DDS_AW(9)) spi_inst(
-	.clk(pll_clk),
-	
 	parameter BUF_DEPTH = 11;
 	
 	//////////////////////////////////////////////////////////////////////////
@@ -101,13 +41,14 @@ spi_module #(.DDS_AW(9)) spi_inst(
 	wire [31:0] adc_cfg, dds_a_cfg, dds_b_cfg;
 	
 	// ADC Memory Buffer Wiring
-	wire [BUF_DEPTH:0] adc_buf_w_addr, trig_addr;
+	wire [BUF_DEPTH-1:0] adc_buf_w_addr, trig_addr;
 	wire [BUF_DEPTH-1:0] adc_buf_r_addr;
 	wire [15:0] adc_buf_data;
 	wire adc_buf_wen;
 	wire trigger_flag;
 	wire trigger_wait, trigger_seen, adc_buf_full;
 	reg  adc_data_available = 0;
+	wire bank_sel;
 	
 	// DDS Wiring
 	wire [8:0] dds_a_addr, dds_a_r_addr, dds_b_addr, dds_b_r_addr;
@@ -142,6 +83,7 @@ spi_module #(.DDS_AW(9)) spi_inst(
 	
 	//////////////////////////////////////////////////////////////////////////
 	// adc_data_available state machine
+
 	always @(posedge clk) begin
 		if (adc_data_Available & ~spi_busy) begin
 			adc_data_available <= 1'b1;
@@ -177,7 +119,7 @@ spi_module #(.DDS_AW(9)) spi_inst(
 	  // ADC Buffer Connections
 	 .mem_data(adc_buf_data),
 	 .mem_addr(adc_buf_r_addr),
-	 .trig_addr(trig_addr),
+	 .trig_addr({bank_sel, trig_addr}),
 		
 	  // DDS Wave Table Connections
 	  .dds_a_data(dds_a_data),
@@ -239,9 +181,9 @@ spi_module #(.DDS_AW(9)) spi_inst(
 	ram_adc ram_adc (
 		.clock(pll_clk),
 		.data(adc_buf),
-		.wraddress(adc_buf_w_addr),
+		.wraddress({~bank_sel, adc_buf_w_addr}),
 		.wren(adc_buf_wen),
-		.rdaddress({trig_addr[BUF_DEPTH], adc_buf_r_addr}),
+		.rdaddress({bank_sel, adc_buf_r_addr}),
 		.q(adc_buf_data)
 	);
 	
@@ -259,12 +201,12 @@ spi_module #(.DDS_AW(9)) spi_inst(
 		.mem_addr(adc_buf_w_addr),		// drives buffer memory and latches buffer offset on done_flag
 		.mem_en(adc_buf_wen),			// memory write strobe
 		.trig_addr(trig_addr),
+		.bank_sel(bank_sel),
 		
 		// Progress Signals
 		.waiting_for_trigger(trigger_wait),
 		.triggered(trigger_seen)
 	);
-	
 	
 	//////////////////////////////////////////////////////////////////////////
 	// Analog I/O Buffering
