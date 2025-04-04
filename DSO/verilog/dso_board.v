@@ -28,6 +28,7 @@ module dso_board (
 );
 
 	parameter BUF_DEPTH = 11;
+	parameter DDS_DEPTH = 9;
 	
 	//////////////////////////////////////////////////////////////////////////
 	// wires and register
@@ -52,7 +53,7 @@ module dso_board (
 	wire [1:0] adc_trig_state;
 	
 	// DDS Wiring
-	wire [8:0] dds_a_addr, dds_a_r_addr, dds_b_addr, dds_b_r_addr;
+	wire [DDS_DEPTH-1:0] dds_a_addr, dds_a_r_addr, dds_b_addr, dds_b_r_addr;
 	wire [7:0] dds_a_data, dds_a_r_data, dds_b_data, dds_b_r_data;
 	wire [7:0] dds_a_dac_data, dds_b_dac_data;
 	wire dds_a_w, dds_b_w;
@@ -65,8 +66,8 @@ module dso_board (
 	// Assignments
 	
 	// MCU Handshake
-	//assign led = ~{trigger_wait, trigger_seen, adc_buf_full};
-	assign led = ~{adc_data_available, adc_trig_state};
+	assign led = ~{trigger_wait, trigger_seen, adc_buf_full};
+	//assign led = ~{adc_data_available, adc_trig_state};
 	assign ready_mcu = adc_data_available;
 		
 	// Analog Device Clocks
@@ -103,7 +104,7 @@ module dso_board (
 	PLL_100MHz pll_inst(.inclk0(clk), .c0(pll_clk));
 	
 	// SPI Interface
-	spi_module #(.DDS_AW(9)) spi_inst(
+	spi_module #(.DDS_AW(DDS_DEPTH)) spi_inst(
 	  .clk(pll_clk),
 		
 	  // SPI Interface
@@ -159,7 +160,7 @@ module dso_board (
 	);
 	
 	// DDS_A phase accumulator and controller
-	dds #(.DDS_AW(9)) dds_a (
+	dds #(.DDS_AW(DDS_DEPTH)) dds_a (
 		.clk(pll_clk),
 		.cfg(dds_a_cfg),
 		.tbl_data(dds_a_r_data),
@@ -168,7 +169,7 @@ module dso_board (
 	);
 	
 	// DDS_B phase accumulator and controller
-	dds #(.DDS_AW(9)) dds_b (
+	dds #(.DDS_AW(DDS_DEPTH)) dds_b (
 		.clk(pll_clk),
 		.cfg(dds_b_cfg),
 		.tbl_data(dds_b_r_data),

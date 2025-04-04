@@ -51,18 +51,17 @@ module adc_driver #(
 
 	// Sample Counter
 	wire [DEPTH-1:0] sample_q;
-	wire half_buffer_sampled = sample_q[DEPTH-1];
+	wire half_buffer_sampled;
 
 	// Trigger
 	wire trigger_flag;
-	wire trigger_req_internal; 
+	reg trigger_req_internal; 
 
 	// Signal Assignments
 	assign sample_flag = sample_divider_q == sample_divider;
+	//assign sample_flag = sample_divider_q[2];
 	assign buf_update_flag = ready & valid;
-	assign trigger_req_internal = trigger_req;// | 
-							//	(mode == MODE_IMMEDIATE) |
-							//	((mode == MODE_AUTO & half_buffer_sampled));
+	assign half_buffer_sampled = sample_q[DEPTH-1];	
 
 	// IO Assignments
 	assign mem_addr = mem_addr_ctr_q;
@@ -76,7 +75,7 @@ module adc_driver #(
 	// Trigger State Machine
 	always @* begin
 		case (state)
-			STATE_WAIT_PREBUF: next_state = (half_buffer_sampled) ? STATE_WAIT_TRIG : state;
+			STATE_WAIT_PREBUF: next_state =(half_buffer_sampled) ? STATE_WAIT_TRIG : state;
 			STATE_WAIT_TRIG: next_state = (trigger_req_internal) ? STATE_WAIT_FILL : state;
 			STATE_WAIT_FILL: next_state = (half_buffer_sampled) ? STATE_WAIT_READ : state;
 			STATE_WAIT_READ: next_state = (buf_update_flag) ? STATE_WAIT_PREBUF : state;
@@ -84,8 +83,12 @@ module adc_driver #(
 	end
 
 	always @(posedge clk) state <= next_state;
+	
+	always @(posedge clk) trigger_req_internal <= trigger_req;// | 
+							//	(mode == MODE_IMMEDIATE) |
+							//	((mode == MODE_AUTO & half_buffer_sampled));
 
-	// Buffer Occupancy State Machine - reset whenever trigger state changes
+	// Sample divider
 	counter_sre #(.Bits(DEL_W)) sample_divider_ctr(.clk(clk), .en(1'b1), .sync_reset(sample_flag), .q(sample_divider_q));
 
 	// Sample Counter - resets onchange of state
