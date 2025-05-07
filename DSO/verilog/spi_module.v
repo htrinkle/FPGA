@@ -221,7 +221,7 @@ register #(.N(32)) r_32_dds_b (
 	.q(dds_b_cfg_out)
 );
 
-// DDS B Config (32 bit shift register)
+// Status of ADC 4 status bits followed by trigger addr
 shift_register #(.N(16)) sr_16_status (
 	.clk(clk),
 
@@ -235,8 +235,7 @@ shift_register #(.N(16)) sr_16_status (
 	.done(sr_16_status_done),
 
 	// Data	
-	//.data_in({4'h5,trig_addr})
-	.data_in(16'hABCD)
+	.data_in({4'd0,trig_addr})
 );
 
 // Sequential memory read

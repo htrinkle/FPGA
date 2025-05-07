@@ -59,7 +59,7 @@ module adc_driver #(
 
 	// Signal Assignments
 	assign sample_flag = sample_divider_q == sample_divider;
-	//assign sample_flag = sample_divider_q[2];
+	//assign sample_flag = 1'b1;
 	assign buf_update_flag = ready & valid;
 	assign half_buffer_sampled = sample_q[DEPTH-1];	
 
@@ -84,9 +84,9 @@ module adc_driver #(
 
 	always @(posedge clk) state <= next_state;
 	
-	always @(posedge clk) trigger_req_internal <= trigger_req;// | 
-							//	(mode == MODE_IMMEDIATE) |
-							//	((mode == MODE_AUTO & half_buffer_sampled));
+	always @(posedge clk) trigger_req_internal <= trigger_req | 
+								(mode == MODE_IMMEDIATE) |
+								((mode == MODE_AUTO & half_buffer_sampled));
 
 	// Sample divider
 	counter_sre #(.Bits(DEL_W)) sample_divider_ctr(.clk(clk), .en(1'b1), .sync_reset(sample_flag), .q(sample_divider_q));

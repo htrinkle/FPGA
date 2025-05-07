@@ -1,7 +1,7 @@
 `include "../verilog/shift_register.v"
 `include "../verilog/register.v"
 `include "../verilog/counter_sre.v"
-`include "../verilog/adc_driver.v"
+`include "../verilog/adc_driver_test.v"
 
 module tb_adc_driver();
 
@@ -18,7 +18,7 @@ module tb_adc_driver();
   wire trig_occured;
   wire trig_wait;
 
-  adc_driver #(.DEPTH(BUF_DEPTH), .DEL_W(24)) adc_driver_inst(
+  adc_driver_test #(.DEPTH(BUF_DEPTH), .DEL_W(24)) adc_driver_inst(
 	  .clk(clk),
     .sample_divider(24'd1),
     .mode(2'd0),

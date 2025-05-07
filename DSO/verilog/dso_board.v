@@ -51,6 +51,7 @@ module dso_board (
 	reg  adc_data_available = 0;
 	wire bank_sel;
 	wire [1:0] adc_trig_state;
+	wire trig_ch_a, trig_ch_b, trigger_signal;
 	
 	// DDS Wiring
 	wire [DDS_DEPTH-1:0] dds_a_addr, dds_a_r_addr, dds_b_addr, dds_b_r_addr;
@@ -59,7 +60,7 @@ module dso_board (
 	wire dds_a_w, dds_b_w;
 	
 	// ADC and DAC buffering
-	reg [15:0] adc_buf;
+	reg [15:0] adc_buf, adc_buf_n;
 	reg [7:0] dds_a_buf, dds_b_buf;
 	
 	//////////////////////////////////////////////////////////////////////////
@@ -81,13 +82,13 @@ module dso_board (
 	assign dac_b_d = dds_b_buf;
 	
 	// PMOD, LED, and Buttons
-	assign pmod_a = adc_cfg[7:0];
-	assign pmod_b = adc_buf[7:0];
+	assign pmod_a = adc_cfg[23:16];
+	assign pmod_b = adc_cfg[31:24];
 	
 	//////////////////////////////////////////////////////////////////////////
 	// adc_data_available state machine
 
-	always @(posedge clk) begin
+	always @(posedge pll_clk) begin
 		if (adc_buf_full & ~spi_busy) begin
 			adc_data_available <= 1'b1;
 		end else if (spi_busy) begin // TODO: should get a "clear" signal from 
@@ -114,7 +115,6 @@ module dso_board (
 	  .miso_spi(miso_spi),
 		
 	  // Configuration Outouts
-		//.q_c(pmod_b),  // problematic as we may have unstable data during load - instead break out specific signals as needed.
 	  .adc_cfg_out(adc_cfg),
 	  .dds_a_cfg_out(dds_a_cfg),
 	  .dds_b_cfg_out(dds_b_cfg),
@@ -180,7 +180,7 @@ module dso_board (
 	//////////////////////////////////////////////////////////////////////////
 	// ADC Buffer and Trigget Logic
 	
-	// DDS_B wave-table memory
+	// ADC Buffer
 	ram_adc ram_adc (
 		.clock(pll_clk),
 		.data(adc_buf),
@@ -190,13 +190,31 @@ module dso_board (
 		.q(adc_buf_data)
 	);
 	
-	adc_driver #(.DEPTH(BUF_DEPTH), .DEL_W(24)) adc_driver_inst(
+	trigger trig_ch_a_inst(
+		.clk(pll_clk),
+		.signal(adc_buf[7:0]),
+		.level(8'd0),
+		.rising_edge(~adc_cfg[26]),
+		.edge_flag(trig_ch_a)
+	);
+	
+	trigger trig_ch_b_inst(
+		.clk(pll_clk),
+		.signal(adc_buf[15:8]),
+		.level(8'd0),
+		.rising_edge(~adc_cfg[26]),
+		.edge_flag(trig_ch_b)
+	);
+	
+	assign trigger_signal = ~button | trig_ch_a & ~adc_cfg[27] | trig_ch_b & adc_cfg[27];
+	
+	adc_driver_test #(.DEPTH(BUF_DEPTH), .DEL_W(24)) adc_driver_inst(
 		.clk(pll_clk),
 		
 		// configuration and control inputs
 		.sample_divider(adc_cfg[23:0]),	// Configuration - sample rate
-		.mode(2'd0),
-		.trigger_req(~button),  // Trigger condition is met
+		.mode(adc_cfg[25:24]),
+		.trigger_req(trigger_signal),  // Trigger condition is met
 		.ready(~spi_busy), // Should only swap mem banks if SPI is not active
 		.valid(adc_buf_full),
 	
@@ -216,10 +234,10 @@ module dso_board (
 	// Analog I/O Buffering
 	
 	// DDS Output Buffer
-	
 	always @(negedge pll_clk) {dds_a_buf, dds_b_buf} <= {dds_a_dac_data, dds_b_dac_data};
 	
 	// ADC Input Buffer
-	always @(posedge pll_clk) adc_buf <= {adc_a_d, adc_b_d};
+	always @(posedge pll_clk) adc_buf <= adc_buf_n;
+	always @(negedge pll_clk) adc_buf_n <= {adc_a_d, adc_b_d};
 
 endmodule
